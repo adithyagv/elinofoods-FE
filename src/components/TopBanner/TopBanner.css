@@ -1,0 +1,26 @@
+.top-banner {
+  background-color: #4B2C20;
+  color: #FFD45D;
+  overflow: hidden;
+  white-space: nowrap;
+  padding: 10px 0;
+  font-weight: bold;
+  font-size: 14px;
+  position: relative;
+  height: 25px;
+}
+
+.marquee {
+  display: inline-block;
+  white-space: nowrap;
+  animation: scrollText 20s linear infinite;
+}
+
+@keyframes scrollText {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}

@@ -1,0 +1,26 @@
+.footer {
+  display: flex;
+  justify-content: space-between;
+  background: #ffc555;
+  width: 100%;
+  padding: 40px 0px;
+  text-align: left;
+}
+
+.footer h4 {
+  margin-bottom: 10px;
+}
+
+.footer .column {
+  flex: 1;
+  min-width: 200px;
+  margin-left: 25px;
+  
+}
+.icon{
+  color: #ffff;
+  font-size: 24px;
+  position: relative;
+  top: 5px;
+  gap: 10px;
+}

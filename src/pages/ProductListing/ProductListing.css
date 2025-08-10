@@ -1,0 +1,294 @@
+.product-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-around;
+  padding: 24px;
+  margin-bottom: 260px;
+}
+
+.product-gallery {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+
+.product-image {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.main-image {
+  width: 500px;
+  height: auto;
+  object-fit: contain;
+  background: transparent;
+  transition: opacity 0.5s ease-in-out;
+  opacity: 1;
+}
+
+.main-image.fade {
+  animation: fadein 0.4s ease-in-out;
+}
+
+@keyframes fadein {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.nav-arrow {
+  font-size: 28px;
+  cursor: pointer;
+  color: #444;
+  transition: 0.2s ease;
+}
+.nav-arrow:hover {
+  color: #000;
+}
+
+.thumbnail-gallery {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.thumbnail {
+  width: 60px;
+  height: auto;
+  cursor: pointer;
+  opacity: 0.6;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  transition: 0.2s ease;
+}
+
+.thumbnail:hover {
+  opacity: 0.9;
+}
+
+.thumbnail.active {
+  opacity: 1;
+  border-color: #222;
+}
+.product-details {
+  text-align: left;
+}
+.product {
+  transition: all 3 ease-in-out;
+}
+.product:hover {
+  scale: 1.02;
+}
+.quantity {
+  border: 1px solid black;
+  width: 80px;
+  border-radius: 20px;
+  height: 30px;
+}
+.ingredients-wrapper {
+  padding: 2rem;
+  text-align: center;
+}
+
+.ingredients-grid {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4rem;
+  flex-wrap: wrap; /* Optional for responsiveness */
+}
+
+.ellipse-bg {
+  width: 300px;
+  height: 400px;
+  background: radial-gradient(ellipse at center, #f0e6da 0%, #c7b29b 100%);
+  border-radius: 2000px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+}
+
+.center-bar {
+  max-width: 150px;
+  height: auto;
+}
+
+.ingredients-wrapper {
+  padding: 13rem;
+  text-align: center;
+  background-image: url("../ProductListing/Rectangle1.svg");
+  background-repeat: no-repeat;
+  background-size: cover; /* or contain, or 100% 100% */
+}
+
+.ingredients-grid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+}
+
+/* Left-side ellipse with chocolate bar */
+.ellipse-bg {
+  width: 300px;
+  height: 400px;
+  background: radial-gradient(ellipse at center, #fceabb, #f8b500);
+  border-radius: 50% / 40%;
+  display: flex;
+  align-items: center;
+  position: relative;
+  justify-content: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+}
+
+.center-bar {
+  min-width: 560px;
+  height: auto;
+  top: 200px;
+  transform: rotate(-5deg);
+  position: relative;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  animation: floatIn 0.6s ease forwards;
+}
+
+/* Ingredient bubbles */
+.bubble {
+  padding: 1rem;
+  display: flex;
+  position: absolute;
+  flex-direction: column;
+  text-align: center;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  animation: floatIn 0.6s ease forwards;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.bubble img {
+  width: 150px;
+  height: 150px;
+  transition: transform 0.4s ease;
+}
+
+.bubble span {
+  font-weight: 600;
+  transition: color 0.4s ease;
+  background-color: #f8b500;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.bubble-0 {
+  top: 350px;
+  right: 600px;
+}
+.bubble-1 {
+  top: 100px;
+  right: 600px;
+}
+.bubble-2 {
+  left: 80px;
+  bottom: 500px;
+}
+.bubble-3 {
+  left: 600px;
+  bottom: 300px;
+}
+.bubble-4 {
+  left: 600px;
+  bottom: 50px;
+}
+.bubble-5 {
+  bottom: 500px;
+  right: 50px;
+}
+.bubble:hover {
+  transform: scale(1.1) rotate(-2deg) translateY(-8px);
+  z-index: 2;
+}
+
+.bubble:hover img {
+  transform: rotate(10deg) scale(1.15);
+}
+
+.bubble:hover span {
+  color: #f57c00;
+}
+
+/* Animation on entrance */
+@keyframes floatIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.outer-wrapper {
+  position: relative;
+}
+
+.green-semi-circle {
+  position: relative;
+  width: 686px;
+  height: 594px;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: #056142;
+  border-radius: 353.69px 353.69px 0px 0px;
+}
+.benefits-wrapper {
+  padding: 12rem;
+  position: relative;
+  bottom: 110px;
+  text-align: center;
+  background-image: url("../ProductListing/Rectangle3.svg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  color: white;
+}
+.benefits-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+}
+.benefits {
+  display: flex;
+  gap: 30px;
+  color: white;
+}
+
+.benefits-1,
+.benefits-2 {
+  padding-bottom: 20px;
+}
+.center-bar1 {
+  transform: rotate(-5deg);
+}
+.combo-wrapper {
+  padding: 10rem;
+  align-items: center;
+  position: relative;
+  bottom: 220px;
+
+  background-image: url("../ProductListing/Rectangle2.svg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  display: flex;
+  justify-content: space-evenly;
+}

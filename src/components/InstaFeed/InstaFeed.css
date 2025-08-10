@@ -1,0 +1,63 @@
+.reel-slider {
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+  gap: 20px;
+  padding: 20px;
+}
+.reel-card-header{
+    color: #502d0d;
+    font-size: 30px;
+    margin-bottom: 100px;
+}
+.insta-icon{
+    position: relative;
+    top: 7px;
+}
+.reel-card {
+  min-width: 300px;
+  height: 500px;
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+  cursor: pointer;
+  margin-bottom: 120px;
+}
+
+.thumbnail {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.play-icon {
+  position: absolute;
+  top: 45%;
+  left: 45%;
+  transform: translate(-50%, -50%);
+  font-size: 40px;
+  color: white;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 20px;
+  border-radius: 50%;
+  z-index: 1;
+}
+@media (max-width: 768px) {
+  .reel-slider {
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 120px;
+  }
+  .reel-card {
+    width: 40%;
+    margin: 0 auto 20px auto;
+    
+  }
+}
