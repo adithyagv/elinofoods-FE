@@ -14,6 +14,7 @@ import shopifyService from "../../services/shopifyService";
 import { useParams } from "react-router-dom";
 import { AnimatedSection } from "../../hooks/CustomAnimation";
 import { useInView } from "../../hooks/CustomAnimation";
+import Footer from "../../components/Footer/Footer";
 
 export default function Products() {
   const { handle } = useParams();
@@ -912,6 +913,9 @@ export default function Products() {
         <Comment />
       </AnimatedSection>
       <CartSidebar />
+      <AnimatedSection animation="fadeInUp">
+        <Footer />
+      </AnimatedSection>
     </div>
   );
 }
