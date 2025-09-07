@@ -78,7 +78,8 @@ function authReducer(state, action) {
 // AuthProvider Component
 export function AuthProvider({ children }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
-  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+  const API_URL =
+    "https://elinofoods-be.onrender.com/api" || "http://localhost:5000/api";
 
   // Check authentication on app load
   useEffect(() => {
