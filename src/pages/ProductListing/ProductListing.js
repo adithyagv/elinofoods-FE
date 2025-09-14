@@ -11,19 +11,28 @@ import Comment from "../../components/Comment/Comments";
 import { useCart } from "../../components/CartContext";
 import CartSidebar from "../../components/cartSidebar";
 import shopifyService from "../../services/shopifyService";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { AnimatedSection } from "../../hooks/CustomAnimation";
 import { useInView } from "../../hooks/CustomAnimation";
 import Footer from "../../components/Footer/Footer";
 
+const categoryProductMap = {
+  "bar-blast": "tosi",
+  "fruit-jerky": "fruit-jerky",
+};
+
 export default function Products() {
   const { handle } = useParams();
   const { addToCart, setIsCartOpen } = useCart();
+  const location = useLocation();
 
   // Refs for color and center fit
   const imgRef = useRef(null);
   const semiCircleRef = useRef(null);
   const centerImgRef = useRef(null);
+
+  const searchParams = new URLSearchParams(location.search);
+  const category = searchParams.get("category");
 
   // State
   const [product, setProduct] = useState(null);
@@ -33,6 +42,11 @@ export default function Products() {
 
   const [otherProducts, setOtherProducts] = useState([]);
   const [otherProductsLoading, setOtherProductsLoading] = useState(false);
+  // Add this with your other state declarations
+  const [reviewStats, setReviewStats] = useState({
+    averageRating: 0,
+    totalReviews: 0,
+  });
 
   const [textColor, setTextColor] = useState("#000");
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -86,6 +100,50 @@ export default function Products() {
     }
   };
 
+  const fetchProductRating = async (productId) => {
+    if (!productId) return;
+
+    try {
+      const cleanId = getCleanProductId(productId);
+      console.log("Fetching ratings for product ID:", productId);
+      console.log("Cleaned ID:", cleanId);
+
+      const url = `${
+        process.env.REACT_APP_API_URL || "http://localhost:5000/api/shopify"
+      }/reviews/${cleanId}/rating`;
+      console.log("Rating fetch URL:", url);
+
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch rating: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("Rating data received:", data);
+
+      if (data.success) {
+        setReviewStats(data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching product rating:", error);
+    }
+  };
+
+  // Add this to your useEffect that watches for product changes
+  useEffect(() => {
+    // Reset review stats when product changes
+    setReviewStats({
+      averageRating: 0,
+      totalReviews: 0,
+    });
+
+    // If product is loaded, fetch its ratings
+    if (product?.id) {
+      fetchProductRating(product.id);
+    }
+  }, [product?.id]);
+
   const fitCenterImage = () => {
     const img = centerImgRef.current;
     const wrap = semiCircleRef.current;
@@ -130,13 +188,25 @@ export default function Products() {
         setLoading(true);
         setError(null);
 
-        const productHandle = handle || "tosi";
+        // Determine which product to load based on category or handle
+        let productHandle;
+        if (category && categoryProductMap[category]) {
+          productHandle = categoryProductMap[category];
+        } else {
+          productHandle = handle || "tosi";
+        }
+
         const productData = await shopifyService.getProduct(productHandle);
         if (!productData || !productData.title) {
           throw new Error("Invalid product data");
         }
 
         setProduct(productData);
+
+        // Fetch the rating for this product
+        if (productData.id) {
+          fetchProductRating(productData.id);
+        }
 
         if (productData.variants?.edges?.length > 0) {
           const available = productData.variants.edges.find(
@@ -157,9 +227,9 @@ export default function Products() {
         setLoading(false);
       }
     };
-
     fetchProduct();
-  }, [handle]);
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [handle, category]);
 
   const isColorDark = (r, g, b) => (r * 299 + g * 587 + b * 114) / 1000 < 128;
 
@@ -183,6 +253,11 @@ export default function Products() {
   const handlePrev = () => {
     if (!product?.images?.edges || product.images.edges.length <= 1) return;
     setCurrentIndex((p) => (p === 0 ? product.images.edges.length - 1 : p - 1));
+  };
+
+  const getCleanProductId = (shopifyId) => {
+    // Extract just the numeric ID at the end
+    return shopifyId.split("/").pop();
   };
 
   const handleNext = () => {
@@ -438,9 +513,13 @@ export default function Products() {
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <div style={{ display: "flex", alignItems: "center" }}>
                 <FaStar style={{ color: "gold" }} />
-                <p>4.5</p>
+                <p>
+                  {reviewStats.averageRating
+                    ? reviewStats.averageRating.toFixed(1)
+                    : "0.0"}
+                </p>
               </div>
-              <p>47 Reviews</p>
+              <p>{reviewStats.totalReviews || 0} Reviews</p>
             </div>
             {product.description && (
               <p
@@ -910,7 +989,10 @@ export default function Products() {
       </AnimatedSection>
 
       <AnimatedSection animation="fadeInUp">
-        <Comment />
+        <Comment
+          key={product?.id} // Add a key to force re-render when product changes
+          productId={product?.id ? getCleanProductId(product.id) : ""}
+        />
       </AnimatedSection>
       <CartSidebar />
       <AnimatedSection animation="fadeInUp">

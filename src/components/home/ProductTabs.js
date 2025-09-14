@@ -1,8 +1,8 @@
-import './ProductTabs.css';
-import React, { useState, useEffect } from 'react';
+import "./ProductTabs.css";
+import React, { useState, useEffect } from "react";
 
 const ProductTabs = () => {
-  const [activeTab, setActiveTab] = useState('bars'); // default to 'bars'
+  const [activeTab, setActiveTab] = useState("bars"); // default to 'bars'
   const [products, setProducts] = useState({
     bars: [],
     shakes: [],
@@ -11,13 +11,11 @@ const ProductTabs = () => {
   useEffect(() => {
     const fetchedProducts = {
       bars: [
-        { id: 1, name: 'Choco Energy Bar', image: '/assets/logo.png' },
-        { id: 2, name: 'Peanut Crunch', image: '/assets/logo.png' }
+        { id: 1, name: "Tosi - Crunchy Meal Bar", image: "/assets/logo.png" },
       ],
       shakes: [
-        { id: 3, name: 'Berry Blast', image: '/assets/logo.png' },
-        { id: 4, name: 'Banana Boost', image: '/assets/logo.png' }
-      ]
+        { id: 2, name: "Mango Chilli Jerky", image: "/assets/logo.png" },
+      ],
     };
     setProducts(fetchedProducts);
   }, []);
@@ -28,16 +26,16 @@ const ProductTabs = () => {
 
       <div className="tabs">
         <button
-          className={activeTab === 'bars' ? 'active' : ''}
-          onClick={() => setActiveTab('bars')}
+          className={activeTab === "bars" ? "active" : ""}
+          onClick={() => setActiveTab("bars")}
         >
           Bar Blast
         </button>
         <button
-          className={activeTab === 'shakes' ? 'active' : ''}
-          onClick={() => setActiveTab('shakes')}
+          className={activeTab === "shakes" ? "active" : ""}
+          onClick={() => setActiveTab("shakes")}
         >
-          Shakes
+          Fruit Jerky
         </button>
       </div>
 

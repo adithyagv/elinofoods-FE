@@ -18,7 +18,7 @@ const Navbar = () => {
   const [activePath, setActivePath] = useState(window.location.pathname);
 
   // Use AuthContext instead of local customer state
-  const { customer, logout, isAuthenticated, loading: authLoading } = useAuth();
+  const { customer, logout, isAuthenticated } = useAuth();
 
   // Refs for dropdown management
   const profileDropdownRef = useRef(null);
@@ -134,7 +134,13 @@ const Navbar = () => {
                 Search by Categories
               </p>
               {dropdown.link.map((item, index) => (
-                <a key={index} href={`../products`} className="dropdown-item">
+                <a
+                  key={index}
+                  href={`/products?category=${item
+                    .toLowerCase()
+                    .replace(" ", "-")}`}
+                  className="dropdown-item"
+                >
                   {item}
                 </a>
               ))}

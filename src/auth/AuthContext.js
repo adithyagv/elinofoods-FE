@@ -84,6 +84,7 @@ export function AuthProvider({ children }) {
   // Check authentication on app load
   useEffect(() => {
     checkAuthStatus();
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Verify token and get customer data
