@@ -1,13 +1,13 @@
 .top-banner {
-  background-color: #4B2C20;
-  color: #FFD45D;
+  background-color: #4b2c20;
+  color: #ffd45d;
   overflow: hidden;
   white-space: nowrap;
-  padding: 10px 0;
+  padding: 14px 0;
   font-weight: bold;
-  font-size: 14px;
+  font-size: 16px;
   position: relative;
-  height: 25px;
+  height: 40px;
 }
 
 .marquee {
@@ -28,9 +28,9 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .top-banner {
-    font-size: 12px;
-    padding: 8px 0;
-    height: 20px;
+    font-size: 14px;
+    padding: 12px 0;
+    height: 34px;
   }
 
   .marquee {
@@ -40,9 +40,9 @@
 
 @media (max-width: 480px) {
   .top-banner {
-    font-size: 11px;
-    padding: 6px 0;
-    height: 18px;
+    font-size: 13px;
+    padding: 10px 0;
+    height: 30px;
   }
 
   .marquee {
@@ -52,9 +52,9 @@
 
 @media (max-width: 360px) {
   .top-banner {
-    font-size: 10px;
-    padding: 5px 0;
-    height: 16px;
+    font-size: 12px;
+    padding: 8px 0;
+    height: 28px;
   }
 
   .marquee {

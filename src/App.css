@@ -1,6 +1,10 @@
 .App {
   text-align: center;
 }
+/* Reserve space for the fixed top navbar (h-16 on mobile, h-20 on large screens) */
+.App {
+  padding-top: 4rem; /* 16 */
+}
 body {
   font-family: "lexend", sans-serif;
 }
@@ -46,6 +50,13 @@ body {
   }
 }
 
+@media (min-width: 1024px) {
+  /* lg breakpoint: navbar height is h-20 (5rem) */
+  .App {
+    padding-top: 5rem;
+  }
+}
+
 @media (max-width: 992px) {
   .App {
     font-size: 13px;
@@ -56,7 +67,7 @@ body {
   .App {
     font-size: 12px;
   }
-  
+
   body {
     font-size: 14px;
   }
@@ -66,7 +77,7 @@ body {
   .App {
     font-size: 11px;
   }
-  
+
   body {
     font-size: 13px;
   }
@@ -76,7 +87,7 @@ body {
   .App {
     font-size: 10px;
   }
-  
+
   body {
     font-size: 12px;
   }
