@@ -366,6 +366,172 @@
   .cart-sidebar {
     width: 100vw;
   }
+
+  .cart-header {
+    padding: 12px;
+  }
+
+  .cart-title {
+    font-size: 14px;
+  }
+
+  .cart-items {
+    padding: 12px;
+  }
+
+  .cart-item {
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .item-image {
+    width: 50px;
+    height: 50px;
+  }
+
+  .item-name {
+    font-size: 13px;
+  }
+
+  .quantity-controls {
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+
+  .quantity-btn {
+    padding: 4px;
+  }
+
+  .quantity {
+    font-size: 14px;
+  }
+
+  .item-price {
+    font-size: 14px;
+  }
+
+  .cart-footer {
+    padding: 12px;
+  }
+
+  .offers-section h3,
+  .special-offers h3 {
+    font-size: 13px;
+  }
+
+  .coupon-field {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+
+  .offer-card {
+    min-width: 100px;
+    padding: 6px;
+  }
+
+  .offer-image {
+    width: 28px;
+    height: 28px;
+  }
+
+  .offer-title {
+    font-size: 11px;
+  }
+
+  .offer-price {
+    font-size: 11px;
+  }
+
+  .add-offer-btn,
+  .apply-coupon-btn {
+    font-size: 9px;
+    padding: 3px 6px;
+  }
+
+  .total-price {
+    font-size: 18px;
+  }
+
+  .total-label {
+    font-size: 13px;
+  }
+
+  .checkout-btn,
+  .continue-shopping-btn {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .secured-text {
+    font-size: 11px;
+  }
+
+  .empty-cart {
+    height: 150px;
+  }
+
+  .empty-icon {
+    font-size: 36px;
+    margin-bottom: 12px;
+  }
+
+  .empty-cart p {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 360px) {
+  .cart-header {
+    padding: 10px;
+  }
+
+  .cart-title {
+    font-size: 13px;
+  }
+
+  .cart-items {
+    padding: 10px;
+  }
+
+  .cart-item {
+    padding: 8px;
+    gap: 8px;
+  }
+
+  .item-image {
+    width: 45px;
+    height: 45px;
+  }
+
+  .item-name {
+    font-size: 12px;
+  }
+
+  .quantity {
+    font-size: 13px;
+  }
+
+  .item-price {
+    font-size: 13px;
+  }
+
+  .cart-footer {
+    padding: 10px;
+  }
+
+  .total-price {
+    font-size: 16px;
+  }
+
+  .checkout-btn,
+  .continue-shopping-btn {
+    padding: 8px;
+    font-size: 13px;
+  }
+
+  .secured-text {
+    font-size: 10px;
+  }
 }
 /* Error Alert Styles */
 .error-alert {

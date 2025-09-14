@@ -377,12 +377,22 @@ hr {
     padding: 1rem;
   }
 
+  .comments-container h1 {
+    font-size: 1.5rem;
+  }
   .rating-overview {
     flex-direction: column;
     gap: 1rem;
     align-items: stretch;
   }
 
+  .average-rating {
+    justify-content: center;
+  }
+
+  .rating-display h2 {
+    font-size: 1.5rem;
+  }
   .review-header {
     flex-direction: column;
     gap: 1rem;
@@ -392,6 +402,15 @@ hr {
     align-items: flex-start;
   }
 
+  .avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+
+  .reviewer-details h4 {
+    font-size: 1rem;
+  }
   .form-actions {
     justify-content: center;
   }
@@ -399,6 +418,7 @@ hr {
   .modal-content {
     margin: 1rem;
     max-height: 85vh;
+    overflow-y: auto;
   }
 
   .modal-header,
@@ -417,5 +437,154 @@ hr {
   .submit-review-btn {
     width: 100%;
     text-align: center;
+  }
+
+  .review-input,
+  .review-textarea {
+    width: 94%;
+  }
+
+  .star-rating {
+    justify-content: center;
+  }
+
+  .see-more-btn {
+    padding: 0.5rem 1.5rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .comments-wrapper {
+    padding: 0.5rem;
+  }
+
+  .comments-container h1 {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+  }
+
+  .rating-summary {
+    padding: 1rem;
+  }
+
+  .rating-display h2 {
+    font-size: 1.3rem;
+  }
+
+  .add-review-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .review-card {
+    padding: 1rem;
+  }
+
+  .avatar {
+    width: 35px;
+    height: 35px;
+    font-size: 0.9rem;
+  }
+
+  .reviewer-details h4 {
+    font-size: 0.9rem;
+  }
+
+  .location,
+  .review-date {
+    font-size: 0.8rem;
+  }
+
+  .review-content p {
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  .modal-header h3 {
+    font-size: 1.2rem;
+  }
+
+  .form-group label {
+    font-size: 0.9rem;
+  }
+
+  .review-input,
+  .review-textarea {
+    width: 92%;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .star-rating .star {
+    font-size: 20px;
+  }
+
+  .rating-text {
+    font-size: 0.8rem;
+  }
+
+  .submit-review-btn,
+  .cancel-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .see-more-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .comments-container h1 {
+    font-size: 1.1rem;
+  }
+
+  .rating-display h2 {
+    font-size: 1.1rem;
+  }
+
+  .add-review-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+
+  .review-card {
+    padding: 0.8rem;
+  }
+
+  .avatar {
+    width: 30px;
+    height: 30px;
+    font-size: 0.8rem;
+  }
+
+  .reviewer-details h4 {
+    font-size: 0.8rem;
+  }
+
+  .review-content p {
+    font-size: 0.8rem;
+  }
+
+  .modal-header h3 {
+    font-size: 1rem;
+  }
+
+  .review-input,
+  .review-textarea {
+    width: 90%;
+    font-size: 0.8rem;
+  }
+
+  .star-rating .star {
+    font-size: 18px;
+  }
+
+  .close-modal-btn {
+    width: 35px;
+    height: 35px;
+    font-size: 1.2rem;
   }
 }
