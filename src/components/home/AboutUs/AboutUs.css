@@ -94,11 +94,88 @@
 /* Responsive */
 @media (max-width: 768px) {
   .about-card {
-    width: 80%;
+    width: 300px;
+    height: 320px;
+  }
+
+  .about-us-section {
+    padding: 30px 20px;
+  }
+
+  .about-us-section h2 {
+    font-size: 32px;
+    margin-bottom: 60px;
+  }
+
+  .about-cards-container {
+    gap: 15px;
+    margin-top: 30px;
+    margin-bottom: 80px;
   }
 }
-@media (max-width: 480px) {
+
+@media (max-width: 640px) {
+  .about-us-section {
+    padding: 25px 15px;
+  }
+
+  .about-us-section h2 {
+    font-size: 28px;
+    margin-bottom: 50px;
+  }
+
   .about-card {
-    width: 100%;
+    width: 280px;
+    height: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .about-us-section {
+    padding: 20px 10px;
+  }
+
+  .about-us-section h2 {
+    font-size: 24px;
+    margin-bottom: 40px;
+  }
+
+  .about-cards-container {
+    gap: 12px;
+    margin-top: 25px;
+    margin-bottom: 60px;
+  }
+
+  .about-card {
+    width: 260px;
+    height: 280px;
+  }
+
+  .overlay h3 {
+    font-size: 18px;
+  }
+
+  .read-more {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 360px) {
+  .about-us-section h2 {
+    font-size: 20px;
+  }
+
+  .about-card {
+    width: 240px;
+    height: 260px;
+  }
+
+  .overlay h3 {
+    font-size: 16px;
+  }
+
+  .overlay {
+    padding: 15px 8px;
   }
 }
