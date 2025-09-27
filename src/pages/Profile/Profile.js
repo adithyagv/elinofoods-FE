@@ -102,13 +102,13 @@ const Profile = () => {
   };
 
   const formatDate = (dateString) => {
+
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
     });
   };
-
   const formatPrice = (price) => {
     return `${price.currencyCode} ${parseFloat(price.amount).toFixed(2)}`;
   };
@@ -141,6 +141,9 @@ const Profile = () => {
       </div>
     );
   }
+ /*  console.log(orders.map((order)=>(
+    order.node
+  ))) */
 
   return (
     <div className="profile-container">
@@ -288,7 +291,7 @@ const Profile = () => {
                           <h4>Order #{order.orderNumber}</h4>
                           <p className="order-date">
                             <FaCalendarAlt size={12} />
-                            {formatDate(order.processedAt)}
+                            {formatDate(order.processedAt|| new Date())}
                           </p>
                         </div>
                       </div>
