@@ -275,11 +275,11 @@ const CartSidebar = () => {
               <div className="checkout-section">
                 <div className="price-breakdown">
                   <div className="price-row">
-                    <span>Subtotal</span>
+                    <span>Subtotal </span>
                     <span>{formatPrice(getTotalPrice())}</span>
                   </div>
                   <div className="price-row">
-                    <span>Shipping</span>
+                    <span>Shipping </span>
                     <span>Calculated at checkout</span>
                   </div>
                 </div>
