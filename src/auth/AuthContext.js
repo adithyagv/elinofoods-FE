@@ -78,8 +78,7 @@ function authReducer(state, action) {
 // AuthProvider Component
 export function AuthProvider({ children }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
-  const API_URL =
-     "https://elinofoods-be.onrender.com/api" /*||  "http://localhost:5000/api";*/
+  const API_URL = "https://elinofoods-be.onrender.com/api" /*||  "http://localhost:5000/api";*/
 
   // Check authentication on app load
   useEffect(() => {
@@ -157,6 +156,7 @@ export function AuthProvider({ children }) {
 
   // Login function
   const login = async (email, password) => {
+    console.log("credentials: ",email, password)
     dispatch({ type: AUTH_ACTIONS.LOGIN_START });
 
     try {
@@ -250,12 +250,34 @@ export function AuthProvider({ children }) {
   };
 
   // Update customer data
-  const updateCustomer = (customerData) => {
-    dispatch({
-      type: AUTH_ACTIONS.UPDATE_CUSTOMER,
-      payload: customerData,
+const updateCustomer = async (customerData) => {
+  try {
+
+    const response = await fetch(`${API_URL}/shopify/admin/customer/update`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(customerData),
     });
-  };
+
+    const result = await response.json();
+
+    if (result.success) {
+      // Update context with Shopify's updated customer data
+      dispatch({
+        type: AUTH_ACTIONS.UPDATE_CUSTOMER,
+        payload: result.customer,
+      });
+      return { success: true, customer: result.customer };
+    } else {
+      return { success: false, error: result.error || "Update failed" };
+    }
+  } catch (error) {
+    console.error("❌ Error updating customer:", error);
+    return { success: false, error: error.message };
+  }
+};
 
   // Clear auth data from localStorage
   const clearAuthData = () => {
