@@ -130,8 +130,6 @@
   background-image: url("../ProductListing/Rectangle1.svg");
   background-repeat: no-repeat;
   background-size: cover; /* or contain, or 100% 100% */
-  position: relative;
-  z-index: 10; /* keep ingredients above following sections when needed */
 }
 
 .ingredients-grid {
@@ -157,10 +155,10 @@
 }
 
 .center-bar {
-  min-width: 670px;
+  min-width: 560px;
   height: auto;
   top: 200px;
-  transform: rotate(-150deg);
+  transform: rotate(-5deg);
   position: relative;
   transition: transform 0.4s ease, box-shadow 0.4s ease;
   animation: floatIn 0.6s ease forwards;
@@ -253,8 +251,6 @@
   margin-right: auto;
   background-color: #056142;
   border-radius: 353.69px 353.69px 0px 0px;
-  max-width: 100%;
-  box-sizing: border-box;
 }
 .benefits-wrapper {
   padding: 12rem;
@@ -265,7 +261,6 @@
   background-repeat: no-repeat;
   background-size: cover;
   color: white;
-  z-index: 5;
 }
 .benefits-container {
   display: flex;
@@ -296,55 +291,6 @@
   background-size: cover;
   display: flex;
   justify-content: space-evenly;
-}
-
-/* Prevent overlap on narrower viewports by removing upward offsets and adding separation */
-@media (max-width: 1200px) {
-  .benefits-wrapper {
-    bottom: auto;
-    margin-top: 2rem;
-  }
-
-  .combo-wrapper {
-    bottom: auto;
-    margin-top: 2rem;
-  }
-}
-
-@media (max-width: 992px) {
-  .benefits-wrapper {
-    bottom: auto;
-    margin-top: 1.5rem;
-  }
-
-  .combo-wrapper {
-    bottom: auto;
-    margin-top: 1.5rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .benefits-wrapper {
-    bottom: auto;
-    margin-top: 1rem;
-  }
-
-  .combo-wrapper {
-    bottom: auto;
-    margin-top: 1rem;
-  }
-  /* Ensure the green semi circle and bubbles don't overflow the viewport */
-  .green-semi-circle {
-    width: 100%;
-    height: auto;
-    min-height: 220px;
-  }
-  .center-bar {
-    position: relative;
-    top: 0;
-    transform: none;
-    min-width: 160px;
-  }
 }
 
 /* Responsive Design */
@@ -840,52 +786,5 @@
   .product-card img {
     width: 200px;
     height: 160px;
-  }
-}
-
-/* Stack bubbles and make semi-circle fluid on small screens to avoid overlap */
-@media (max-width: 768px) {
-  .outer-wrapper {
-    overflow: visible;
-  }
-
-  .green-semi-circle {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    padding: 1rem 0 3rem 0;
-    height: auto;
-  }
-
-  .bubble {
-    position: static !important;
-    display: inline-flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 8px 12px;
-    opacity: 1 !important;
-    transform: none !important;
-  }
-
-  /* reset location-specific offsets */
-  .bubble-0,
-  .bubble-1,
-  .bubble-2,
-  .bubble-3,
-  .bubble-4,
-  .bubble-5 {
-    top: auto !important;
-    right: auto !important;
-    left: auto !important;
-    bottom: auto !important;
-  }
-
-  .center-bar {
-    min-width: 180px;
-    max-width: 60%;
-    margin: 0 auto 12px auto;
-    transform: none;
-    position: relative;
   }
 }
