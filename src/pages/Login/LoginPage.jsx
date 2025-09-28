@@ -700,6 +700,7 @@ const styles = {
     borderRadius: "12px",
     fontSize: "1rem",
     transition: "all 0.2s",
+    boxSizing: "border-box",
   },
 
   inputDisabled: {
