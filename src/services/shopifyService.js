@@ -1,7 +1,12 @@
 import axios from "axios";
 
+<<<<<<< HEAD
 const API_BASE_URL =
   "https://elinofoods-be.onrender.com/api"  /*||  "http://localhost:5000/api"*/;
+=======
+const API_BASE_URL = "https://elinofoods-be.onrender.com/api" /* ||  "http://localhost:5000/api"*/
+
+>>>>>>> 45d398cde2e666c992ab4c005460e33bec07d987
 
 // Add axios interceptor for better debugging
 axios.interceptors.request.use(
@@ -270,6 +275,172 @@ const shopifyService = {
       throw error;
     }
   },
+
+  // REVIEW MANAGEMENT FUNCTIONS
+
+  // Fetch reviews for a product
+  async getReviews(productId, page = 1, limit = 10, sort = "-createdAt") {
+    try {
+      console.log(`📝 Fetching reviews for product ${productId}`);
+
+      const response = await axios.get(
+        `${API_BASE_URL}/shopify/reviews/${productId}`,
+        {
+          params: { page, limit, sort },
+        }
+      );
+
+      console.log("Reviews fetched:", response.data);
+
+      if (response.data.success) {
+        return response.data.data;
+      } else {
+        throw new Error(response.data.error || "Failed to fetch reviews");
+      }
+    } catch (error) {
+      console.error(
+        "Error fetching reviews:",
+        error.response?.data || error.message
+      );
+
+      // Provide more helpful error messages
+      if (
+        error.code === "ECONNREFUSED" ||
+        error.message.includes("Network Error")
+      ) {
+        throw new Error(
+          "Cannot connect to server. Please ensure the backend is running."
+        );
+      }
+
+      throw error;
+    }
+  },
+
+  // Submit a new review
+  async submitReview(productId, reviewData) {
+    try {
+      console.log(`✍️ Submitting review for product ${productId}:`, reviewData);
+
+      // Validate required fields
+      if (
+        !reviewData.name?.trim() ||
+        !reviewData.comment?.trim() ||
+        !reviewData.rating
+      ) {
+        throw new Error("Name, comment, and rating are required");
+      }
+
+      const response = await axios.post(
+        `${API_BASE_URL}/shopify/reviews/${productId}`,
+        {
+          name: reviewData.name.trim(),
+          email: reviewData.email?.trim() || "",
+          location: reviewData.location?.trim() || "",
+          rating: parseInt(reviewData.rating),
+          comment: reviewData.comment.trim(),
+        }
+      );
+
+      console.log("Review submitted:", response.data);
+
+      if (response.data.success) {
+        return response.data.data;
+      } else {
+        throw new Error(response.data.error || "Failed to submit review");
+      }
+    } catch (error) {
+      console.error(
+        "Error submitting review:",
+        error.response?.data || error.message
+      );
+
+      // Handle validation errors
+      if (error.response?.data?.error) {
+        throw new Error(error.response.data.error);
+      }
+
+      throw error;
+    }
+  },
+
+  // Mark a review as helpful
+  async markReviewHelpful(productId, reviewId) {
+    try {
+      console.log(`👍 Marking review ${reviewId} as helpful`);
+
+      const response = await axios.post(
+        `${API_BASE_URL}/shopify/reviews/${productId}/${reviewId}/helpful`
+      );
+
+      console.log("Review marked as helpful:", response.data);
+
+      if (response.data.success) {
+        return response.data.data;
+      } else {
+        throw new Error(
+          response.data.error || "Failed to mark review as helpful"
+        );
+      }
+    } catch (error) {
+      console.error(
+        "Error marking review as helpful:",
+        error.response?.data || error.message
+      );
+      throw error;
+    }
+  },
+
+  // Report a review
+  async reportReview(productId, reviewId, reason) {
+    try {
+      console.log(`🚨 Reporting review ${reviewId} for: ${reason}`);
+
+      const response = await axios.post(
+        `${API_BASE_URL}/shopify/reviews/${productId}/${reviewId}/report`,
+        { reason }
+      );
+
+      console.log("Review reported:", response.data);
+
+      if (response.data.success) {
+        return response.data.data;
+      } else {
+        throw new Error(response.data.error || "Failed to report review");
+      }
+    } catch (error) {
+      console.error(
+        "Error reporting review:",
+        error.response?.data || error.message
+      );
+      throw error;
+    }
+  },
+
+  // Get review statistics for a product
+  async getReviewStats(productId) {
+    try {
+      console.log(`📊 Fetching review stats for product ${productId}`);
+
+      const response = await axios.get(
+        `${API_BASE_URL}/shopify/reviews/${productId}/stats`
+      );
+
+      console.log("Review stats fetched:", response.data);
+
+      if (response.data.success) {
+        return response.data.data;
+      } else {
+        throw new Error(response.data.error || "Failed to fetch review stats");
+      }
+    } catch (error) {
+      console.error(
+        "Error fetching review stats:",
+        error.response?.data || error.message
+      );
+      throw error;
+    }
+  },
 };
 
 // Export individual functions
@@ -279,6 +450,13 @@ export const createCheckout = shopifyService.createCheckout;
 export const addToCheckout = shopifyService.addToCheckout;
 export const updateCartItems = shopifyService.updateCartItems;
 export const testConnection = shopifyService.testConnection;
+
+// Export review functions
+export const getReviews = shopifyService.getReviews;
+export const submitReview = shopifyService.submitReview;
+export const markReviewHelpful = shopifyService.markReviewHelpful;
+export const reportReview = shopifyService.reportReview;
+export const getReviewStats = shopifyService.getReviewStats;
 
 // Default export
 export default shopifyService;

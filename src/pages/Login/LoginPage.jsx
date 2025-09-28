@@ -369,37 +369,35 @@ const LoginPage = () => {
               </p>
 
               <div style={styles.formSpace}>
-                <div style={styles.nameRow}>
-                  <div style={styles.nameField}>
-                    <input
-                      type="text"
-                      placeholder="First Name"
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                      required
-                      disabled={localLoading}
-                      className="input-focus"
-                      style={{
-                        ...styles.input,
-                        ...(localLoading ? styles.inputDisabled : {}),
-                      }}
-                    />
-                  </div>
-                  <div style={styles.nameField}>
-                    <input
-                      type="text"
-                      placeholder="Last Name"
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                      required
-                      disabled={localLoading}
-                      className="input-focus"
-                      style={{
-                        ...styles.input,
-                        ...(localLoading ? styles.inputDisabled : {}),
-                      }}
-                    />
-                  </div>
+                <div style={styles.nameField}>
+                  <input
+                    type="text"
+                    placeholder="First Name"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    required
+                    disabled={localLoading}
+                    className="input-focus"
+                    style={{
+                      ...styles.input,
+                      ...(localLoading ? styles.inputDisabled : {}),
+                    }}
+                  />
+                </div>
+                <div style={styles.nameField}>
+                  <input
+                    type="text"
+                    placeholder="Last Name"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    required
+                    disabled={localLoading}
+                    className="input-focus"
+                    style={{
+                      ...styles.input,
+                      ...(localLoading ? styles.inputDisabled : {}),
+                    }}
+                  />
                 </div>
 
                 <div>
@@ -766,16 +764,6 @@ const styles = {
     cursor: "pointer",
     textDecoration: "none",
     transition: "color 0.2s",
-  },
-
-  nameRow: {
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: "1rem",
-  },
-
-  nameField: {
-    width: "90%",
   },
 
   checkboxContainer: {

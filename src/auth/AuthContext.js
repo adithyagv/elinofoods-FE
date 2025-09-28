@@ -78,12 +78,12 @@ function authReducer(state, action) {
 // AuthProvider Component
 export function AuthProvider({ children }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
-  const API_URL =
-     "https://elinofoods-be.onrender.com/api" /*||   "http://localhost:5000/api" */;
+  const API_URL = "https://elinofoods-be.onrender.com/api" /*||  "http://localhost:5000/api";*/
 
   // Check authentication on app load
   useEffect(() => {
     checkAuthStatus();
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Verify token and get customer data
