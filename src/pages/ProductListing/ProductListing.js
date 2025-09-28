@@ -23,7 +23,10 @@ const categoryProductMap = {
 
 export default function Products() {
   const { handle } = useParams();
+   const { id } = useParams();
+   console.log("id:", id)
   const { addToCart, setIsCartOpen } = useCart();
+  const url=  process.env.REACT_APP_API_URL || "http://localhost:5000/api/shopify"
   const location = useLocation();
 
   // Refs for color and center fit
@@ -108,12 +111,12 @@ export default function Products() {
       console.log("Fetching ratings for product ID:", productId);
       console.log("Cleaned ID:", cleanId);
 
-      const url = `${
+     /*  const url = `${
         process.env.REACT_APP_API_URL || "http://localhost:5000/api/shopify"
-      }/reviews/${cleanId}/rating`;
+      }/reviews/${cleanId}/rating`; */
       console.log("Rating fetch URL:", url);
 
-      const response = await fetch(url);
+      const response = await fetch(`${url}/reviews/${cleanId}/rating`);
 
       if (!response.ok) {
         throw new Error(`Failed to fetch rating: ${response.status}`);
@@ -193,7 +196,7 @@ export default function Products() {
         if (category && categoryProductMap[category]) {
           productHandle = categoryProductMap[category];
         } else {
-          productHandle = handle || "tosi";
+          productHandle = id || "tosi";
         }
 
         const productData = await shopifyService.getProduct(productHandle);
