@@ -10,6 +10,9 @@ import {
   FaShoppingBag,
   FaCalendarAlt,
   FaSignOutAlt,
+  FaHome,
+  FaGlobe,
+  FaCity,
 } from "react-icons/fa";
 import { useAuth, withAuth } from "../../auth/AuthContext";
 import "./Profile.css";
@@ -19,14 +22,26 @@ const Profile = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [isEditingAddress, setIsEditingAddress] = useState(false);
+  const [showAddressSection, setShowAddressSection] = useState(false);
   const [orders, setOrders] = useState([]);
 
-  // Form data for editing
+  // Form data for editing profile
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
     phone: "",
+  });
+
+  // Form data for editing address
+  const [addressData, setAddressData] = useState({
+    address1: "",
+    address2: "",
+    city: "",
+    province: "",
+    zip: "",
+    country: "",
   });
 
   // Initialize form data when customer data is available
@@ -38,6 +53,19 @@ const Profile = () => {
         email: customer.email || "",
         phone: customer.phone || "",
       });
+      
+      // Initialize address data
+      if (customer.defaultAddress) {
+        setAddressData({
+          address1: customer.defaultAddress.address1 || "",
+          address2: customer.defaultAddress.address2 || "",
+          city: customer.defaultAddress.city || "",
+          province: customer.defaultAddress.province || "",
+          zip: customer.defaultAddress.zip || "",
+          country: customer.defaultAddress.country || "",
+        });
+      }
+      
       setOrders(customer.orders?.edges || []);
     }
   }, [customer]);
@@ -49,27 +77,33 @@ const Profile = () => {
     });
   };
 
+  const handleAddressChange = (e) => {
+    setAddressData({
+      ...addressData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
   const handleSaveProfile = async () => {
     try {
       setLoading(true);
 
-      // Note: Shopify Storefront API doesn't allow customer updates
-      // You would need to implement this in your backend using Admin API
-      // For now, we'll just update the local state
-
       const updatedCustomerData = {
+        id: customer.id,
         firstName: formData.firstName,
         lastName: formData.lastName,
         phone: formData.phone,
       };
 
-      // Update the context state
-      updateCustomer(updatedCustomerData);
+      const result = await updateCustomer(updatedCustomerData);
 
-      setIsEditing(false);
-
-      // Show success message (you can implement toast notifications)
-      alert("Profile updated successfully!");
+      if (result.success) {
+        alert("Profile updated successfully!");
+        window.location.reload(); 
+        setIsEditing(false);
+      } else {
+        alert("Failed to update profile: " + result.error);
+      }
     } catch (err) {
       console.error("Error updating profile:", err);
       alert("Failed to update profile. Please try again.");
@@ -78,8 +112,87 @@ const Profile = () => {
     }
   };
 
+  const handleSaveAddress = async () => {
+    try {
+      setLoading(true);
+
+      // Prepare the updated customer data with address information
+      const updatedCustomerData = {
+        id: customer.id,
+        firstName: customer.firstName,
+        lastName: customer.lastName,
+        phone: customer.phone,
+        defaultAddress: {
+          id: customer.defaultAddress?.id,
+          address1: addressData.address1,
+          address2: addressData.address2,
+          city: addressData.city,
+          province: addressData.province,
+          zip: addressData.zip,
+          country: addressData.country,
+        }
+      };
+
+      const result = await updateCustomer(updatedCustomerData);
+
+      if (result.success) {
+        alert("Address updated successfully!");
+        window.location.reload(); 
+        setIsEditingAddress(false);
+        setShowAddressSection(false);
+      } else {
+        alert("Failed to update address: " + result.error);
+      }
+      
+    } catch (err) {
+      console.error("Error updating address:", err);
+      alert("Failed to update address. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Alternative approach: Combined save for both profile and address
+  const handleSaveAll = async () => {
+    try {
+      setLoading(true);
+
+      const updatedCustomerData = {
+        id: customer.id,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        phone: formData.phone,
+        defaultAddress: {
+          id: customer.defaultAddress?.id,
+          address1: addressData.address1,
+          address2: addressData.address2,
+          city: addressData.city,
+          province: addressData.province,
+          zip: addressData.zip,
+          country: addressData.country,
+        }
+      };
+
+      const result = await updateCustomer(updatedCustomerData);
+
+      if (result.success) {
+        alert("Profile and address updated successfully!");
+        window.location.reload(); 
+        setIsEditing(false);
+        setIsEditingAddress(false);
+        setShowAddressSection(false);
+      } else {
+        alert("Failed to update: " + result.error);
+      }
+    } catch (err) {
+      console.error("Error updating customer data:", err);
+      alert("Failed to update. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleCancelEdit = () => {
-    // Reset form data to original values
     setFormData({
       firstName: customer?.firstName || "",
       lastName: customer?.lastName || "",
@@ -89,14 +202,32 @@ const Profile = () => {
     setIsEditing(false);
   };
 
+  const handleCancelAddressEdit = () => {
+    if (customer?.defaultAddress) {
+      setAddressData({
+        address1: customer.defaultAddress.address1 || "",
+        address2: customer.defaultAddress.address2 || "",
+        city: customer.defaultAddress.city || "",
+        province: customer.defaultAddress.province || "",
+        zip: customer.defaultAddress.zip || "",
+        country: customer.defaultAddress.country || "",
+      });
+    }
+    setIsEditingAddress(false);
+    setShowAddressSection(false);
+  };
+
+  const handleManageAddresses = () => {
+    setShowAddressSection(true);
+    setIsEditingAddress(true);
+  };
+
   const handleLogout = async () => {
     try {
       await logout();
-      // AuthContext will handle the cleanup and redirection
       window.location.href = "/";
     } catch (err) {
       console.error("Logout error:", err);
-      // Force logout even if API call fails
       window.location.href = "/";
     }
   };
@@ -113,7 +244,6 @@ const Profile = () => {
     return `${price.currencyCode} ${parseFloat(price.amount).toFixed(2)}`;
   };
 
-  // Show loading if auth is still loading or if we don't have customer data yet
   if (authLoading || !customer) {
     return (
       <div className="profile-container">
@@ -152,9 +282,7 @@ const Profile = () => {
           <div className="profile-header-info">
             <h1>My Profile</h1>
             <p>Welcome back, {customer.firstName || customer.email}!</p>
-            <small>
-              Member since {formatDate(customer.createdAt || new Date())}
-            </small>
+          
           </div>
           <button className="logout-btn-header" onClick={handleLogout}>
             <FaSignOutAlt />
@@ -266,6 +394,127 @@ const Profile = () => {
           </div>
         </div>
 
+        {/* Address Information Card - Only show when showAddressSection is true */}
+        {showAddressSection && (
+        <div className="profile-card">
+          <div className="card-header">
+            <h2>Default Address</h2>
+            <div className="edit-actions">
+              <button
+                className="save-btn"
+                onClick={handleSaveAddress}
+                disabled={loading}
+              >
+                <FaSave />
+                {loading ? "Saving..." : "Save"}
+              </button>
+              <button className="cancel-btn" onClick={handleCancelAddressEdit}>
+                <FaTimes />
+                Cancel
+              </button>
+            </div>
+          </div>
+
+          <div className="profile-info">
+            <div className="info-row">
+              <div className="info-item">
+                <FaHome className="info-icon" />
+                <div className="info-content">
+                  <label>Address Line 1</label>
+                  <input
+                    type="text"
+                    name="address1"
+                    value={addressData.address1}
+                    onChange={handleAddressChange}
+                    className="edit-input"
+                    placeholder="Enter address line 1"
+                  />
+                </div>
+              </div>
+
+              <div className="info-item">
+                <FaHome className="info-icon" />
+                <div className="info-content">
+                  <label>Address Line 2</label>
+                  <input
+                    type="text"
+                    name="address2"
+                    value={addressData.address2}
+                    onChange={handleAddressChange}
+                    className="edit-input"
+                    placeholder="Enter address line 2 (optional)"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="info-row">
+              <div className="info-item">
+                <FaCity className="info-icon" />
+                <div className="info-content">
+                  <label>City</label>
+                  <input
+                    type="text"
+                    name="city"
+                    value={addressData.city}
+                    onChange={handleAddressChange}
+                    className="edit-input"
+                    placeholder="Enter city"
+                  />
+                </div>
+              </div>
+
+              <div className="info-item">
+                <FaMapMarkerAlt className="info-icon" />
+                <div className="info-content">
+                  <label>State/Province</label>
+                  <input
+                    type="text"
+                    name="province"
+                    value={addressData.province}
+                    onChange={handleAddressChange}
+                    className="edit-input"
+                    placeholder="Enter state/province"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="info-row">
+              <div className="info-item">
+                <FaMapMarkerAlt className="info-icon" />
+                <div className="info-content">
+                  <label>ZIP/Postal Code</label>
+                  <input
+                    type="text"
+                    name="zip"
+                    value={addressData.zip}
+                    onChange={handleAddressChange}
+                    className="edit-input"
+                    placeholder="Enter ZIP code"
+                  />
+                </div>
+              </div>
+
+              <div className="info-item">
+                <FaGlobe className="info-icon" />
+                <div className="info-content">
+                  <label>Country</label>
+                  <input
+                    type="text"
+                    name="country"
+                    value={addressData.country}
+                    onChange={handleAddressChange}
+                    className="edit-input"
+                    placeholder="Enter country"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        )}
+
         {/* Order History Card */}
         <div className="profile-card">
           <div className="card-header">
@@ -288,7 +537,7 @@ const Profile = () => {
                           <h4>Order #{order.orderNumber}</h4>
                           <p className="order-date">
                             <FaCalendarAlt size={12} />
-                            {formatDate(order.processedAt)}
+                            {formatDate(order.processedAt|| new Date())}
                           </p>
                         </div>
                       </div>
@@ -322,7 +571,10 @@ const Profile = () => {
           </div>
 
           <div className="account-actions">
-            <button className="action-btn secondary">
+            <button 
+              className="action-btn secondary"
+              onClick={handleManageAddresses}
+            >
               <FaMapMarkerAlt />
               Manage Addresses
             </button>

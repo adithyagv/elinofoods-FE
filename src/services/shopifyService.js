@@ -120,6 +120,7 @@ const shopifyService = {
 
   // Fetch single product by handle
   async getProduct(handle) {
+    console.log("Fetching product for handle:", handle);
     try {
       console.log(`🎯 Fetching product with handle: ${handle}`);
       const url = `${API_ENDPOINT}/shopify/products/${handle}`;
