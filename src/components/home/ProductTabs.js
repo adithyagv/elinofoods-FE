@@ -11,14 +11,29 @@ const ProductTabs = () => {
   useEffect(() => {
     const fetchedProducts = {
       bars: [
-        { id: 1, name: "Tosi - Crunchy Meal Bar", image: "/assets/logo.png" },
+        {
+          id: 1,
+          name: "Tosi - Crunchy Meal Bar",
+          image: "/assets/tosi.png",
+          category: "bar-blast", // Category for query param
+        },
       ],
       shakes: [
-        { id: 2, name: "Mango Chilli Jerky", image: "/assets/logo.png" },
+        {
+          id: 2,
+          name: "Mango Chilli Jerky",
+          image: "/assets/jerky.png",
+          category: "fruit-jerky", // Category for query param
+        },
       ],
     };
     setProducts(fetchedProducts);
   }, []);
+
+  const handleViewProduct = (category) => {
+    // Redirect using the same pattern as navbar
+    window.location.href = `/products?category=${category}`;
+  };
 
   return (
     <div className="product-section">
@@ -44,7 +59,9 @@ const ProductTabs = () => {
           <div className="product-card" key={product.id}>
             <img src={product.image} alt={product.name} />
             <p>{product.name}</p>
-            <button>View Product</button>
+            <button onClick={() => handleViewProduct(product.category)}>
+              View Product
+            </button>
           </div>
         ))}
       </div>

@@ -9,7 +9,7 @@ import { FaChevronLeft, FaChevronRight, FaStar } from "react-icons/fa";
 import "./ProductListing.css";
 import Comment from "../../components/Comment/Comments";
 import { useCart } from "../../components/CartContext";
-import CartSidebar from "../../components/cartSidebar";
+import CartSidebar from "../../components/Sidebar/cartSidebar";
 import shopifyService from "../../services/shopifyService";
 import { useParams, useLocation } from "react-router-dom";
 import { AnimatedSection } from "../../hooks/CustomAnimation";
@@ -42,11 +42,15 @@ export default function Products() {
 
   const [otherProducts, setOtherProducts] = useState([]);
   const [otherProductsLoading, setOtherProductsLoading] = useState(false);
+
   // Add this with your other state declarations
   const [reviewStats, setReviewStats] = useState({
     averageRating: 0,
     totalReviews: 0,
   });
+
+  const [ingredient, setIngredient] = useState([]);
+  const [ingredientsLoading, setIngredientsLoading] = useState(false);
 
   const [textColor, setTextColor] = useState("#000");
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -65,15 +69,6 @@ export default function Products() {
     { id: 1, icon: <GiIceCube />, content: "100% sugar free" },
     { id: 2, icon: <MdFastfood />, content: "Contains no calories" },
     { id: 3, icon: <FaLeaf />, content: "100% natural product." },
-  ];
-
-  const ingredients = [
-    { name: "Almonds", image: "/assets/almond.png" },
-    { name: "Cashews", image: "/assets/cashews.png" },
-    { name: "Dates", image: "/assets/dates.png" },
-    { name: "Cocoa", image: "/assets/cocoa.png" },
-    { name: "Ashwagandha", image: "/assets/ashwagandha.png" },
-    { name: "Sea Salt", image: "/assets/sea salt.png" },
   ];
 
   // Compute current image EARLY so hooks can safely reference it
@@ -100,33 +95,38 @@ export default function Products() {
     }
   };
 
+  // Use shopifyService for fetching product rating
   const fetchProductRating = async (productId) => {
     if (!productId) return;
 
     try {
-      const cleanId = getCleanProductId(productId);
-      console.log("Fetching ratings for product ID:", productId);
-      console.log("Cleaned ID:", cleanId);
-
-      const url = `${
-        process.env.REACT_APP_API_URL || "http://localhost:5000/api/shopify"
-      }/reviews/${cleanId}/rating`;
-      console.log("Rating fetch URL:", url);
-
-      const response = await fetch(url);
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch rating: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log("Rating data received:", data);
-
-      if (data.success) {
-        setReviewStats(data.data);
-      }
+      const ratingData = await shopifyService.getProductRating(productId);
+      setReviewStats(ratingData);
     } catch (error) {
       console.error("Error fetching product rating:", error);
+      // Set default values on error
+      setReviewStats({
+        averageRating: 0,
+        totalReviews: 0,
+      });
+    }
+  };
+
+  // Use shopifyService for fetching ingredients
+  const fetchIngredients = async () => {
+    if (!product?.id) return;
+
+    try {
+      setIngredientsLoading(true);
+      const ingredients = await shopifyService.fetchProductIngredients(
+        product.id
+      );
+      setIngredient(ingredients);
+    } catch (error) {
+      console.error("Error fetching ingredients:", error);
+      setIngredient([]);
+    } finally {
+      setIngredientsLoading(false);
     }
   };
 
@@ -141,6 +141,13 @@ export default function Products() {
     // If product is loaded, fetch its ratings
     if (product?.id) {
       fetchProductRating(product.id);
+    }
+  }, [product?.id]);
+
+  // Keep only this useEffect for fetching ingredients
+  useEffect(() => {
+    if (product?.id) {
+      fetchIngredients();
     }
   }, [product?.id]);
 
@@ -255,9 +262,9 @@ export default function Products() {
     setCurrentIndex((p) => (p === 0 ? product.images.edges.length - 1 : p - 1));
   };
 
+  // Helper function to clean product ID (moved from inline)
   const getCleanProductId = (shopifyId) => {
-    // Extract just the numeric ID at the end
-    return shopifyId.split("/").pop();
+    return shopifyService.cleanProductId(shopifyId);
   };
 
   const handleNext = () => {
@@ -289,12 +296,21 @@ export default function Products() {
       setLoading(true);
       setError(null);
 
+      // Reset ingredients when switching products
+      setIngredient([]); // Empty array, no defaults
+      setReviewStats({ averageRating: 0, totalReviews: 0 });
+
       const newProduct = await shopifyService.getProduct(productHandle);
       if (!newProduct || !newProduct.title) {
         throw new Error("Invalid product data");
       }
 
       setProduct(newProduct);
+
+      // Fetch rating for the new product
+      if (newProduct.id) {
+        fetchProductRating(newProduct.id);
+      }
 
       if (newProduct.variants?.edges?.length > 0) {
         const available = newProduct.variants.edges.find(
@@ -410,6 +426,7 @@ export default function Products() {
     );
   }
 
+  // Rest of your component remains the same...
   return (
     <div
       className="productListing"
@@ -843,64 +860,167 @@ export default function Products() {
         </AnimatedSection>
       </AnimatedSection>
 
-      {/* What's inside - Animated */}
-      <div
-        ref={ingredientsRef}
-        className="ingredients-wrapper"
-        style={{
-          opacity: ingredientsInView ? 1 : 0,
-          transform: ingredientsInView ? "translateY(0px)" : "translateY(60px)",
-          transition: "all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-        }}
-      >
-        <AnimatedSection animation="fadeInUp" delay={0.2}>
-          <h1 style={{ marginBottom: "100px" }}>
-            What's inside in {product.title}?
-          </h1>
-        </AnimatedSection>
-        <div className="ingredients-grid">
-          <div className="outer-wrapper">
-            <div className="green-semi-circle" ref={semiCircleRef}>
-              {currentImage && (
+      {/* What's inside - Only show if there are ingredients */}
+      {ingredient.length > 0 || ingredientsLoading ? (
+        <div
+          ref={ingredientsRef}
+          className="ingredients-wrapper"
+          style={{
+            opacity: ingredientsInView ? 1 : 0,
+            transform: ingredientsInView
+              ? "translateY(0px)"
+              : "translateY(60px)",
+            transition: "all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+          }}
+        >
+          <AnimatedSection animation="fadeInUp" delay={0.2}>
+            <h1 style={{ marginBottom: "100px" }}>
+              What's inside in {product.title}?
+            </h1>
+          </AnimatedSection>
+
+          {ingredientsLoading ? (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                minHeight: "400px",
+                fontSize: "18px",
+                color: textColor,
+              }}
+            >
+              <div
+                style={{
+                  width: "40px",
+                  height: "40px",
+                  border: "4px solid #e5e7eb",
+                  borderTop: "4px solid #4B2C20",
+                  borderRadius: "50%",
+                  animation: "spin 1s linear infinite",
+                }}
+              />
+            </div>
+          ) : ingredient.length > 0 ? (
+            <div className="ingredients-grid">
+              <div className="outer-wrapper">
+                <div className="green-semi-circle" ref={semiCircleRef}>
+                  {currentImage && (
+                    <AnimatedSection
+                      animation="rotateIn"
+                      delay={0.4}
+                      style={centerImgStyle}
+                    >
+                      <img
+                        ref={centerImgRef}
+                        src={currentImage.url}
+                        alt={product.title}
+                        className={`center-bar ${
+                          isPortrait ? "portrait" : "landscape"
+                        }`}
+                        onLoad={fitCenterImage}
+                        onError={(e) =>
+                          (e.currentTarget.src = "/assets/placeholder.png")
+                        }
+                        style={centerImgStyle}
+                      />
+                    </AnimatedSection>
+                  )}
+                  {/* Map through ingredients with exact same styling as before */}
+                  {ingredient.slice(0, 6).map((ing, idx) => (
+                    <AnimatedSection
+                      key={ing.id || idx}
+                      animation="scaleIn"
+                      delay={0.6 + idx * 0.15}
+                      className={`bubble bubble-${idx}`}
+                      style={{
+                        animationDelay: `${idx * 0.1}s`,
+                        cursor: "pointer",
+                      }}
+                    >
+                      <img
+                        src={ing.image}
+                        alt={ing.name}
+                        onError={(e) => {
+                          e.currentTarget.src = "/assets/placeholder.png";
+                        }}
+                      />
+                      <span>{ing.name}</span>
+                    </AnimatedSection>
+                  ))}
+                </div>
+              </div>
+
+              {/* Show remaining ingredients if more than 6 */}
+              {ingredient.length > 6 && (
                 <AnimatedSection
-                  animation="rotateIn"
-                  delay={0.4}
-                  style={centerImgStyle}
-                >
-                  <img
-                    ref={centerImgRef}
-                    src={currentImage.url}
-                    alt={product.title}
-                    className={`center-bar ${
-                      isPortrait ? "portrait" : "landscape"
-                    }`}
-                    onLoad={fitCenterImage}
-                    onError={(e) =>
-                      (e.currentTarget.src = "/assets/placeholder.png")
-                    }
-                    style={centerImgStyle}
-                  />
-                </AnimatedSection>
-              )}
-              {ingredients.map((ing, idx) => (
-                <AnimatedSection
-                  key={idx}
-                  animation="scaleIn"
-                  delay={0.6 + idx * 0.15}
-                  className={`bubble bubble-${idx}`}
+                  animation="fadeInUp"
+                  delay={1.2}
                   style={{
-                    animationDelay: `${idx * 0.1}s`,
-                    cursor: "pointer",
+                    marginTop: "40px",
+                    textAlign: "center",
                   }}
                 >
-                  <img src={ing.image} alt={ing.name} />
-                  <span>{ing.name}</span>
+                  <h3 style={{ marginBottom: "20px", color: textColor }}>
+                    More Ingredients
+                  </h3>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      justifyContent: "center",
+                      gap: "15px",
+                      maxWidth: "600px",
+                      margin: "0 auto",
+                    }}
+                  >
+                    {ingredient.slice(6).map((ing, idx) => (
+                      <div
+                        key={ing.id || `extra-${idx}`}
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          padding: "10px",
+                          borderRadius: "8px",
+                          background: "rgba(255, 255, 255, 0.1)",
+                          backdropFilter: "blur(10px)",
+                          border: "1px solid rgba(255, 255, 255, 0.2)",
+                          minWidth: "80px",
+                        }}
+                      >
+                        <img
+                          src={ing.image}
+                          alt={ing.name}
+                          onError={(e) => {
+                            e.currentTarget.src = "/assets/placeholder.png";
+                          }}
+                          style={{
+                            width: "50px",
+                            height: "50px",
+                            objectFit: "cover",
+                            borderRadius: "50%",
+                            marginBottom: "8px",
+                          }}
+                        />
+                        <span
+                          style={{
+                            fontSize: "12px",
+                            textAlign: "center",
+                            color: textColor,
+                          }}
+                        >
+                          {ing.name}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </AnimatedSection>
-              ))}
+              )}
             </div>
-          </div>
+          ) : null}
         </div>
-      </div>
+      ) : null}
 
       {/* Benefits - Animated */}
       <div

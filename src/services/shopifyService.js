@@ -1,7 +1,8 @@
 import axios from "axios";
 
-const API_BASE_URL =
-  "https://elinofoods-be.onrender.com/api" || "http://localhost:5000/api";
+const API_BASE_URL = "https://elinofoods-be.onrender.com/api"; //"http://localhost:5000/api";
+
+const API_ENDPOINT = `${API_BASE_URL}`;
 
 // Add axios interceptor for better debugging
 axios.interceptors.request.use(
@@ -31,11 +32,13 @@ axios.interceptors.response.use(
 );
 
 const shopifyService = {
+  // SHOPIFY PRODUCT FUNCTIONS - Use API_ENDPOINT
+
   // Fetch all products
   async getProducts() {
     try {
       console.log("🛍️  Fetching all products...");
-      const response = await axios.get(`${API_BASE_URL}/shopify/products`);
+      const response = await axios.get(`${API_ENDPOINT}/shopify/products`);
       console.log("Fetched Products: ", response.data);
       return response.data;
     } catch (error) {
@@ -47,11 +50,79 @@ const shopifyService = {
     }
   },
 
+  // NEW: Fetch admin products for management (renamed from fetchProducts)
+  async fetchAdminProducts() {
+    try {
+      console.log("🔧 Fetching admin products for management...");
+
+      // Use the admin products endpoint
+      const response = await axios.get(
+        `${API_ENDPOINT}/shopify/admin/products?limit=50&reverse=true`
+      );
+
+      if (!response.data) {
+        throw new Error("No data received from server");
+      }
+
+      if (response.data.success && response.data.products) {
+        // Transform the data to match component structure
+        const transformedProducts = response.data.products.map((product) => ({
+          id: product.id,
+          title: product.title,
+          handle: product.handle,
+          description: product.description,
+          availableForSale: product.availableForSale,
+          price: product.priceRange?.minVariantPrice
+            ? `$${parseFloat(product.priceRange.minVariantPrice.amount).toFixed(
+                2
+              )}`
+            : "Price not available",
+          currencyCode:
+            product.priceRange?.minVariantPrice?.currencyCode || "USD",
+          image: product.images?.edges?.[0]?.node?.url || null,
+          imageAlt: product.images?.edges?.[0]?.node?.altText || product.title,
+          variants: product.variants?.edges?.map((edge) => edge.node) || [],
+          // Calculate total inventory from variants
+          inventory:
+            product.variants?.edges?.reduce((total, variant) => {
+              return total + (variant.node.availableForSale ? 1 : 0);
+            }, 0) || 0,
+        }));
+
+        return {
+          success: true,
+          products: transformedProducts,
+          total: transformedProducts.length,
+        };
+      } else {
+        throw new Error("Invalid response format from server");
+      }
+    } catch (error) {
+      console.error("Error fetching admin products:", error);
+
+      // Provide more specific error messages
+      if (error.response?.status === 404) {
+        throw new Error("Admin products endpoint not found");
+      } else if (error.response?.status >= 500) {
+        throw new Error("Server error - please try again later");
+      } else if (
+        error.code === "ECONNREFUSED" ||
+        error.message.includes("Network Error")
+      ) {
+        throw new Error(
+          "Cannot connect to server. Please ensure the backend is running."
+        );
+      }
+
+      throw new Error(error.message || "Failed to fetch products");
+    }
+  },
+
   // Fetch single product by handle
   async getProduct(handle) {
     try {
       console.log(`🎯 Fetching product with handle: ${handle}`);
-      const url = `${API_BASE_URL}/shopify/products/${handle}`;
+      const url = `${API_ENDPOINT}/shopify/products/${handle}`;
       console.log(`🔗 Full URL: ${url}`);
 
       const response = await axios.get(url);
@@ -149,7 +220,7 @@ const shopifyService = {
       });
 
       const response = await axios.post(
-        `${API_BASE_URL}/shopify/checkout/create`,
+        `${API_ENDPOINT}/shopify/checkout/create`,
         { lineItems: validatedLineItems }
       );
 
@@ -199,7 +270,7 @@ const shopifyService = {
       }));
 
       const response = await axios.post(
-        `${API_BASE_URL}/shopify/checkout/add-items`,
+        `${API_ENDPOINT}/shopify/checkout/add-items`,
         {
           checkoutId: cartId, // Backend expects checkoutId for compatibility
           lineItems: validatedLineItems,
@@ -230,7 +301,7 @@ const shopifyService = {
       console.log(`📝 Updating cart items for ${cartId}:`, lines);
 
       const response = await axios.post(
-        `${API_BASE_URL}/shopify/checkout/update-items`,
+        `${API_ENDPOINT}/shopify/checkout/update-items`,
         {
           cartId,
           lines: lines.map((line) => ({
@@ -262,7 +333,7 @@ const shopifyService = {
   async testConnection() {
     try {
       const response = await axios.get(
-        `${API_BASE_URL}/shopify/test-connection`
+        `${API_ENDPOINT}/shopify/test-connection`
       );
       return response.data;
     } catch (error) {
@@ -271,7 +342,149 @@ const shopifyService = {
     }
   },
 
-  // REVIEW MANAGEMENT FUNCTIONS
+  // INGREDIENTS MANAGEMENT FUNCTIONS - Use API_BASE_URL directly (no /api prefix)
+
+  // Fetch all ingredients
+  async getIngredients() {
+    try {
+      const url = `${API_BASE_URL}/getingredients`;
+      console.log("🥗 Fetching all ingredients from:", url);
+      const response = await axios.get(url);
+
+      if (response.data.success) {
+        return response.data.ingredients || [];
+      } else {
+        throw new Error(response.data.error || "Failed to fetch ingredients");
+      }
+    } catch (error) {
+      console.error(
+        "Error fetching ingredients:",
+        error.response?.data || error.message
+      );
+      throw error;
+    }
+  },
+
+  // Get ingredients for a specific product
+  async getProductIngredients(productId) {
+    try {
+      const url = `${API_BASE_URL}/getingredients`;
+      console.log(
+        `🥗 Fetching ingredients for product ${productId} from:`,
+        url
+      );
+      const response = await axios.get(url);
+
+      if (response.data.success) {
+        // Filter ingredients for this specific product
+        const ingredients = response.data.ingredients || [];
+        const filtered = ingredients.filter(
+          (ing) => String(ing.product_id) === String(productId)
+        );
+        console.log(
+          `Found ${filtered.length} ingredients for product ${productId}`
+        );
+        return filtered;
+      } else {
+        throw new Error(response.data.error || "Failed to fetch ingredients");
+      }
+    } catch (error) {
+      console.error(
+        "Error fetching product ingredients:",
+        error.response?.data || error.message
+      );
+      throw error;
+    }
+  },
+
+  // Add a new ingredient
+  async addIngredient(ingredientData) {
+    try {
+      const url = `${API_BASE_URL}/addingredient`;
+      console.log("➕ Adding ingredient to:", url);
+      console.log("➕ Payload:", ingredientData);
+      const response = await axios.post(url, ingredientData);
+
+      if (response.data.success) {
+        return response.data.ingredient;
+      } else {
+        throw new Error(response.data.error || "Failed to add ingredient");
+      }
+    } catch (error) {
+      console.error(
+        "Error adding ingredient:",
+        error.response?.data || error.message
+      );
+      throw error;
+    }
+  },
+
+  // Update an ingredient
+  async updateIngredient(ingredientId, updateData) {
+    try {
+      const url = `${API_BASE_URL}/updateingredient/${encodeURIComponent(
+        ingredientId
+      )}`;
+      console.log(`📝 Updating ingredient at:`, url);
+      console.log("📝 Update data:", updateData);
+      const response = await axios.put(url, updateData);
+
+      if (response.data.success) {
+        return response.data.ingredient;
+      } else {
+        throw new Error(response.data.error || "Failed to update ingredient");
+      }
+    } catch (error) {
+      console.error(
+        "Error updating ingredient:",
+        error.response?.data || error.message
+      );
+      throw error;
+    }
+  },
+
+  // Delete an ingredient
+  async deleteIngredient(ingredientId) {
+    try {
+      const url = `${API_BASE_URL}/deleteingredient/${encodeURIComponent(
+        ingredientId
+      )}`;
+      console.log(`🗑️ Deleting ingredient at:`, url);
+      const response = await axios.delete(url);
+
+      if (response.data.success) {
+        return response.data;
+      } else {
+        throw new Error(response.data.error || "Failed to delete ingredient");
+      }
+    } catch (error) {
+      console.error(
+        "Error deleting ingredient:",
+        error.response?.data || error.message
+      );
+      throw error;
+    }
+  },
+
+  // Generate unique ingredient ID
+  generateIngredientId(productId) {
+    const timestamp = Date.now();
+    const randomStr = Math.random().toString(36).substring(2, 7).toUpperCase();
+    return `ING_${productId}_${timestamp}_${randomStr}`;
+  },
+
+  // Helper to clean Shopify product ID
+  cleanProductId(id) {
+    if (!id) return null;
+    // Extract numeric ID from gid://shopify/Product/123456
+    if (typeof id === "string" && id.includes("gid://")) {
+      const parts = id.split("/");
+      return parts[parts.length - 1];
+    }
+    return id;
+  },
+
+  // REVIEW MANAGEMENT FUNCTIONS - Use API_ENDPOINT
 
   // Fetch reviews for a product
   async getReviews(productId, page = 1, limit = 10, sort = "-createdAt") {
@@ -279,7 +492,7 @@ const shopifyService = {
       console.log(`📝 Fetching reviews for product ${productId}`);
 
       const response = await axios.get(
-        `${API_BASE_URL}/shopify/reviews/${productId}`,
+        `${API_ENDPOINT}/shopify/reviews/${productId}`,
         {
           params: { page, limit, sort },
         }
@@ -327,7 +540,7 @@ const shopifyService = {
       }
 
       const response = await axios.post(
-        `${API_BASE_URL}/shopify/reviews/${productId}`,
+        `${API_ENDPOINT}/shopify/reviews/${productId}`,
         {
           name: reviewData.name.trim(),
           email: reviewData.email?.trim() || "",
@@ -365,7 +578,7 @@ const shopifyService = {
       console.log(`👍 Marking review ${reviewId} as helpful`);
 
       const response = await axios.post(
-        `${API_BASE_URL}/shopify/reviews/${productId}/${reviewId}/helpful`
+        `${API_ENDPOINT}/shopify/reviews/${productId}/${reviewId}/helpful`
       );
 
       console.log("Review marked as helpful:", response.data);
@@ -392,7 +605,7 @@ const shopifyService = {
       console.log(`🚨 Reporting review ${reviewId} for: ${reason}`);
 
       const response = await axios.post(
-        `${API_BASE_URL}/shopify/reviews/${productId}/${reviewId}/report`,
+        `${API_ENDPOINT}/shopify/reviews/${productId}/${reviewId}/report`,
         { reason }
       );
 
@@ -412,13 +625,122 @@ const shopifyService = {
     }
   },
 
+  async getProductRevenue(productId) {
+    try {
+      console.log(`📊 Fetching revenue for product ${productId}`);
+      const response = await axios.get(`${API_ENDPOINT}/revenue`, {
+        params: { productId },
+      });
+
+      if (response.data.success) {
+        return {
+          totalRevenue: response.data.totalRevenue || 0,
+          orderCount: response.data.orderCount || 0,
+          currency: response.data.currency || "USD",
+        };
+      } else {
+        throw new Error(response.data.error || "Failed to fetch revenue data");
+      }
+    } catch (error) {
+      console.error(
+        "Error fetching product revenue:",
+        error.response?.data || error.message
+      );
+      // Return default values instead of throwing
+      return {
+        totalRevenue: 0,
+        orderCount: 0,
+        currency: "USD",
+      };
+    }
+  },
+
+  async getProductRating(productId) {
+    if (!productId) {
+      throw new Error("Product ID is required");
+    }
+
+    try {
+      const cleanId = this.cleanProductId(productId);
+      console.log("Fetching ratings for product ID:", productId);
+      console.log("Cleaned ID:", cleanId);
+
+      const url = `${API_ENDPOINT}/shopify/reviews/${cleanId}/rating`;
+      console.log("Rating fetch URL:", url);
+
+      const response = await axios.get(url);
+
+      if (!response.data.success) {
+        throw new Error(response.data.error || "Failed to fetch rating");
+      }
+
+      console.log("Rating data received:", response.data);
+      return response.data.data;
+    } catch (error) {
+      console.error("Error fetching product rating:", error);
+
+      // Return default values instead of throwing for UI consistency
+      return {
+        averageRating: 0,
+        totalReviews: 0,
+      };
+    }
+  },
+
+  // INGREDIENTS FUNCTIONS (Updated)
+
+  // Fetch ingredients for a specific product (simplified)
+  async fetchProductIngredients(productId) {
+    if (!productId) {
+      console.log("No product ID provided for ingredients");
+      return [];
+    }
+
+    try {
+      console.log("Fetching ingredients for product:", productId);
+
+      const response = await axios.get(`${API_BASE_URL}/getingredients`);
+
+      if (!response.data.success || !response.data.ingredients) {
+        console.log("No ingredients data received");
+        return [];
+      }
+
+      // Extract clean product ID from Shopify GID
+      const cleanProductId = this.cleanProductId(productId);
+
+      // Filter ingredients for this specific product
+      const productIngredients = response.data.ingredients.filter((ing) => {
+        return String(ing.product_id) === String(cleanProductId);
+      });
+
+      console.log(
+        `Product ID: ${cleanProductId}, Found ${productIngredients.length} ingredients`
+      );
+
+      if (productIngredients.length > 0) {
+        // Format ingredients for UI consumption
+        return productIngredients.map((ing) => ({
+          name: ing.ingredient_name,
+          image: ing.ingredient_image || "/assets/placeholder.png",
+          id: ing.ingredient_id,
+        }));
+      }
+
+      return [];
+    } catch (error) {
+      console.error("Error fetching ingredients:", error);
+      return [];
+    }
+  },
+
   // Get review statistics for a product
   async getReviewStats(productId) {
     try {
       console.log(`📊 Fetching review stats for product ${productId}`);
 
       const response = await axios.get(
-        `${API_BASE_URL}/shopify/reviews/${productId}/stats`
+        `${API_ENDPOINT}/shopify/reviews/${productId}/stats`
       );
 
       console.log("Review stats fetched:", response.data);
@@ -446,12 +768,29 @@ export const addToCheckout = shopifyService.addToCheckout;
 export const updateCartItems = shopifyService.updateCartItems;
 export const testConnection = shopifyService.testConnection;
 
+// Export new admin products function
+export const fetchAdminProducts = shopifyService.fetchAdminProducts;
+
+// Export ingredient functions
+export const getIngredients = shopifyService.getIngredients;
+export const getProductIngredients = shopifyService.getProductIngredients;
+export const addIngredient = shopifyService.addIngredient;
+export const updateIngredient = shopifyService.updateIngredient;
+export const deleteIngredient = shopifyService.deleteIngredient;
+export const generateIngredientId = shopifyService.generateIngredientId;
+export const cleanProductId = shopifyService.cleanProductId;
+
 // Export review functions
 export const getReviews = shopifyService.getReviews;
 export const submitReview = shopifyService.submitReview;
 export const markReviewHelpful = shopifyService.markReviewHelpful;
 export const reportReview = shopifyService.reportReview;
 export const getReviewStats = shopifyService.getReviewStats;
+
+export const getProductRating = shopifyService.getProductRating;
+export const fetchProductIngredients = shopifyService.fetchProductIngredients;
+
+export const getProductRevenue = shopifyService.getProductRevenue;
 
 // Default export
 export default shopifyService;
