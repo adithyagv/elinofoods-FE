@@ -345,54 +345,126 @@
 }
 
 /* responsive styles */
-@media (max-width: 768px) {
-  .navbar {
-    flex-direction: column;
-    align-items: center;
-    height: auto;
+@media (max-width: 1024px) and (min-width: 769px) {
+  .search-bar {
+    width: 200px;
+  }
+
+  .place {
+    width: 200px;
+  }
+
+  .nav-left {
+    gap: 15px;
   }
 
   .nav-links {
-    flex-direction: column;
-    position: absolute;
-    top: 102px;
-    left: 0;
-    right: 0;
-    background: #ffc555;
-    align-items: center;
-    gap: 20px;
-    padding: 20px 0;
+    gap: 15px;
     display: none;
-    transition: max-height 0.4s ease, opacity 0.3s ease;
   }
 
-  .nav-links.open {
-    max-height: 300px;
-    display: flex;
-    opacity: 1;
+  .nav-links a {
+    font-size: 16px;
+  }
+
+  .nav-icons {
+    gap: 8px;
+  }
+
+  .cart-btn,
+  .profile-btn {
+    font-size: 30px;
+    margin-right: 10px;
+  }
+
+  .profile-btn {
+    font-size: 14px !important;
+  }
+
+  .profile-name {
+    font-size: 12px;
+    max-width: 70px;
   }
 
   .hamburger {
     display: block;
   }
 
-  .search-bar {
-    width: 80%;
+  .nav-links.open {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #ffc555;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    padding: 20px 0;
+    display: flex;
+    z-index: 1000;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
     position: relative;
-    right: 30px;
   }
 
   .nav-left {
-    position: relative;
-    right: 140px;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
 
-  .hamburger,
+  .nav-left h4 {
+    margin: 0;
+    font-size: 18px;
+  }
+
+  .search-bar {
+    display: none;
+  }
+
+  .nav-links {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #ffc555;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    padding: 20px 0;
+    display: none;
+    z-index: 1000;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .nav-links.open {
+    display: flex;
+  }
+
+  .nav-icons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
   .cart-btn,
-  .profile-btn {
-    position: relative;
-    left: 200px;
-    bottom: 70px;
+  .profile-btn,
+  .hamburger {
+    font-size: 30px;
+    margin: 0;
+  }
+
+  .hamburger {
+    display: block;
   }
 
   /* Mobile cart badge adjustments */

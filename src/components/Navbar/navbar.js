@@ -148,11 +148,11 @@ const Navbar = () => {
           )}
         </div>
 
-        <a href="#blog" className={activePath.includes("blog") ? "active" : ""}>
+        <a href="/blog" className={activePath.includes("blog") ? "active" : ""}>
           Blog
         </a>
         <a
-          href="#about"
+          href="/about"
           className={activePath.includes("about") ? "active" : ""}
         >
           About Us

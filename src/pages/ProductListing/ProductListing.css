@@ -158,6 +158,7 @@
   min-width: 560px;
   height: auto;
   top: 200px;
+  left: 30px;
   transform: rotate(-5deg);
   position: relative;
   transition: transform 0.4s ease, box-shadow 0.4s ease;
@@ -253,7 +254,7 @@
   border-radius: 353.69px 353.69px 0px 0px;
 }
 .benefits-wrapper {
-  padding: 12rem;
+  padding: 12rem 0;
   position: relative;
   bottom: 110px;
   text-align: center;
@@ -291,4 +292,286 @@
   background-size: cover;
   display: flex;
   justify-content: space-evenly;
+}
+
+/* Tablet responsiveness */
+@media (max-width: 1024px) {
+  .product-container {
+    padding: 20px;
+    margin-bottom: 200px;
+  }
+
+  .product-gallery {
+    gap: 20px;
+  }
+
+  .main-image {
+    width: 400px;
+  }
+
+  .nav-arrow {
+    font-size: 24px;
+  }
+
+  .thumbnail {
+    width: 50px;
+  }
+
+  .ingredients-wrapper {
+    padding: 8rem 2rem;
+  }
+
+  .ingredients-grid {
+    gap: 1.5rem;
+  }
+
+  .ellipse-bg {
+    width: 250px;
+    height: 320px;
+  }
+
+  .center-bar {
+    min-width: 450px;
+    left: 25px;
+  }
+
+  .bubble img {
+    width: 120px;
+    height: 120px;
+  }
+
+  .bubble-0 {
+    top: 280px;
+    right: 480px;
+  }
+
+  .bubble-1 {
+    top: 80px;
+    right: 480px;
+  }
+
+  .bubble-2 {
+    left: 60px;
+    bottom: 400px;
+  }
+
+  .bubble-3 {
+    left: 480px;
+    bottom: 240px;
+  }
+
+  .bubble-4 {
+    left: 480px;
+    bottom: 40px;
+  }
+
+  .bubble-5 {
+    bottom: 400px;
+    right: 40px;
+  }
+
+  .green-semi-circle {
+    width: 550px;
+    height: 475px;
+  }
+
+  .benefits-wrapper {
+    padding: 8rem 2rem;
+    bottom: 90px;
+  }
+
+  .benefits-container {
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .benefits {
+    gap: 20px;
+  }
+
+  .combo-wrapper {
+    padding: 6rem 2rem;
+    bottom: 180px;
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 767px) {
+  .product-container {
+    flex-direction: column;
+    padding: 16px;
+    margin-bottom: 150px;
+  }
+
+  .product-gallery {
+    gap: 16px;
+  }
+
+  .main-image {
+    width: 300px;
+  }
+
+  .nav-arrow {
+    font-size: 20px;
+  }
+
+  .thumbnail-gallery {
+    gap: 8px;
+  }
+
+  .thumbnail {
+    width: 40px;
+  }
+
+  .product-details {
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  .quantity {
+    width: 60px;
+    height: 25px;
+  }
+
+  .ingredients-wrapper {
+    padding: 4rem 1rem;
+  }
+
+  .ingredients-grid {
+    gap: 1rem;
+  }
+
+  .outer-wrapper {
+    position: relative;
+  }
+
+  .green-semi-circle {
+    width: 280px;
+    height: 242px;
+    margin: 0 auto;
+    background-color: #056142;
+    border-radius: 140px 140px 0 0;
+  }
+
+  .center-bar {
+    min-width: 228px;
+    height: auto;
+    top: 82px;
+    left: 20px;
+    transform: rotate(-5deg);
+    position: relative;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    animation: floatIn 0.6s ease forwards;
+  }
+
+  .bubble {
+    position: absolute;
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    animation: floatIn 0.6s ease forwards;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .bubble img {
+    width: 50px;
+    height: 50px;
+    transition: transform 0.4s ease;
+  }
+
+  .bubble span {
+    font-weight: 600;
+    font-size: 8px;
+    transition: color 0.4s ease;
+    background-color: #f8b500;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2px 4px;
+    border-radius: 4px;
+  }
+
+  /* Even more scaled down bubble positions for mobile */
+  .bubble-0 {
+    top: 143px;
+    right: 228px;
+  }
+
+  .bubble-1 {
+    top: 41px;
+    right: 228px;
+  }
+
+  .bubble-2 {
+    left: 33px;
+    bottom: 191px;
+  }
+
+  .bubble-3 {
+    left: 228px;
+    bottom: 114px;
+  }
+
+  .bubble-4 {
+    left: 228px;
+    bottom: 20px;
+  }
+
+  .bubble-5 {
+    bottom: 191px;
+    right: 20px;
+  }
+
+  .bubble:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .benefits-wrapper {
+    padding: 4rem;
+    bottom: 50px;
+    color: inherit;
+  }
+
+  .benefits-container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .benefits {
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    text-align: center;
+  }
+
+  .center-bar1 {
+    width: 150px;
+    height: auto;
+  }
+
+  .combo-wrapper {
+    padding: 6rem 2rem;
+    bottom: 100px;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .variant-selector {
+    text-align: center;
+  }
+
+  .variants {
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .variant-option {
+    font-size: 14px;
+    padding: 6px 12px;
+    min-width: 80px;
+  }
 }
