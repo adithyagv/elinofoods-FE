@@ -18,6 +18,8 @@ import Footer from "../../components/Footer/Footer";
 
 export default function Products() {
   const { handle } = useParams();
+   const { id } = useParams();
+   console.log("id:", id)
   const { addToCart, setIsCartOpen } = useCart();
 
   // Refs for color and center fit
@@ -130,7 +132,7 @@ export default function Products() {
         setLoading(true);
         setError(null);
 
-        const productHandle = handle || "tosi";
+        const productHandle = id || "tosi";
         const productData = await shopifyService.getProduct(productHandle);
         if (!productData || !productData.title) {
           throw new Error("Invalid product data");
@@ -159,7 +161,7 @@ export default function Products() {
     };
 
     fetchProduct();
-  }, [handle]);
+  }, [id]);
 
   const isColorDark = (r, g, b) => (r * 299 + g * 587 + b * 114) / 1000 < 128;
 

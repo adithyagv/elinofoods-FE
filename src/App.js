@@ -18,6 +18,8 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/products" element={<Products />} />
+              <Route path="/products/:id" element={<Products />} />
+
               <Route path="/profile" element={<Profile />} />
             </Routes>
             <CartSidebar />
