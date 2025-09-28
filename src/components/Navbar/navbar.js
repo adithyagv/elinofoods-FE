@@ -19,14 +19,7 @@ const Navbar = () => {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [activePath, setActivePath] = useState(window.location.pathname);
 
-<<<<<<< HEAD
   const { customer, logout, isAuthenticated, loading: authLoading } = useAuth();
-=======
-  // Use AuthContext instead of local customer state
-  const { customer, logout, isAuthenticated } = useAuth();
-
-  // Refs for dropdown management
->>>>>>> 45d398cde2e666c992ab4c005460e33bec07d987
   const profileDropdownRef = useRef(null);
 
   const { getTotalItems, setIsCartOpen } = useCart();

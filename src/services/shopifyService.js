@@ -1,12 +1,7 @@
 import axios from "axios";
 
-<<<<<<< HEAD
 const API_BASE_URL =
-  "https://elinofoods-be.onrender.com/api"  /*||  "http://localhost:5000/api"*/;
-=======
-const API_BASE_URL = "https://elinofoods-be.onrender.com/api" /* ||  "http://localhost:5000/api"*/
-
->>>>>>> 45d398cde2e666c992ab4c005460e33bec07d987
+  "https://elinofoods-be.onrender.com/api"  ||/*  "http://localhost:5000/api"*/;
 
 // Add axios interceptor for better debugging
 axios.interceptors.request.use(
@@ -54,6 +49,7 @@ const shopifyService = {
 
   // Fetch single product by handle
   async getProduct(handle) {
+    console.log("Fetching product for handle:", handle);
     try {
       console.log(`🎯 Fetching product with handle: ${handle}`);
       const url = `${API_BASE_URL}/shopify/products/${handle}`;
