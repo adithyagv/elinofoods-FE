@@ -119,11 +119,11 @@ const shopifyService = {
   },
 
   // Fetch single product by handle
-  async getProduct(handle) {
+    async getProduct(handle) {
     console.log("Fetching product for handle:", handle);
     try {
       console.log(`🎯 Fetching product with handle: ${handle}`);
-      const url = `${API_ENDPOINT}/shopify/products/${handle}`;
+      const url = `${API_BASE_URL}/shopify/products/${handle}`;
       console.log(`🔗 Full URL: ${url}`);
 
       const response = await axios.get(url);
