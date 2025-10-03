@@ -4,7 +4,9 @@ import { Plus, Edit2, Trash2, Package, AlertCircle } from "lucide-react";
 import IngredientModal from "./IngredientModal";
 import shopifyService from "../../services/shopifyService";
 
-const IngredientsSection = ({ productId: shopifyProductId, productHandle }) => {
+const 
+
+IngredientsSection = ({ productId: shopifyProductId, productHandle }) => {
   // Use the helper from shopifyService
   const productId =
     shopifyService.cleanProductId(shopifyProductId) || productHandle || null;
