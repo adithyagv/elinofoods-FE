@@ -1,9 +1,7 @@
 import axios from "axios";
 
-const API_BASE_URL ="https://elinofoods-be.onrender.com/api" ; //"http://localhost:5000/api";
-//"https://elinofoods-be.onrender.com/api"
+const API_BASE_URL = "https://elinofoods-be.onrender.com/api";
 const API_ENDPOINT = `${API_BASE_URL}`;
-
 
 // Add axios interceptor for better debugging
 axios.interceptors.request.use(
@@ -33,14 +31,41 @@ axios.interceptors.response.use(
 );
 
 const shopifyService = {
-  // SHOPIFY PRODUCT FUNCTIONS - Use API_ENDPOINT
+  // SHOPIFY PRODUCT FUNCTIONS
 
-  // Fetch all products
-  async getProducts() {
+  // Fetch all products with optional category filter
+  async getProducts(options = {}) {
     try {
-      console.log("🛍️  Fetching all products...");
-      const response = await axios.get(`${API_ENDPOINT}/shopify/products`);
-      console.log("Fetched Products: ", response.data);
+      const {
+        category,
+        limit = 50,
+        sortKey = "UPDATED_AT",
+        reverse = true,
+      } = options;
+
+      console.log("🛍️ Fetching products...", options);
+
+      // Build query parameters
+      const params = new URLSearchParams({
+        limit: limit.toString(),
+        sortKey,
+        reverse: reverse.toString(),
+      });
+
+      // Add category if provided
+      if (category) {
+        params.append("category", category);
+        console.log(`🏷️ Filtering by category: ${category}`);
+      }
+
+      const url = `${API_ENDPOINT}/shopify/products?${params.toString()}`;
+      const response = await axios.get(url);
+
+      console.log(
+        `✅ Fetched ${response.data.length || 0} products${
+          category ? ` for category: ${category}` : ""
+        }`
+      );
       return response.data;
     } catch (error) {
       console.error(
@@ -51,12 +76,159 @@ const shopifyService = {
     }
   },
 
-  // NEW: Fetch admin products for management (renamed from fetchProducts)
+  // Fetch products by category
+  async getProductsByCategory(category) {
+    try {
+      console.log(`🏷️ Fetching products for category: ${category}`);
+      return await this.getProducts({ category, limit: 100 });
+    } catch (error) {
+      console.error(
+        `Error fetching products for category ${category}:`,
+        error.response?.data || error.message
+      );
+      throw error;
+    }
+  },
+
+  async getProductById(productId) {
+    console.log("Fetching product by ID:", productId);
+    try {
+      const cleanId = this.cleanProductId(productId);
+      console.log(`🎯 Fetching product with ID: ${cleanId}`);
+
+      // Use the /id/ endpoint specifically for numeric IDs
+      const url = `${API_BASE_URL}/shopify/products/id/${cleanId}`;
+      console.log(`🔗 Full URL: ${url}`);
+
+      const response = await axios.get(url);
+      console.log(`📦 Product fetched successfully:`, response.data);
+
+      return response.data;
+    } catch (error) {
+      console.error(`❌ Error fetching product by ID (${productId}):`, error);
+
+      if (error.response?.status === 404) {
+        throw new Error(`Product with ID "${productId}" not found`);
+      } else if (error.response?.status >= 500) {
+        throw new Error("Server error - please try again later");
+      }
+
+      throw error;
+    }
+  },
+
+  async getProduct(handle) {
+    console.log("Fetching product:", handle);
+    try {
+      // First, check if the handle is actually a numeric ID
+      if (/^\d+$/.test(handle)) {
+        console.log("Handle appears to be numeric ID, using getProductById");
+        return await this.getProductById(handle);
+      }
+
+      console.log(`🎯 Fetching product with handle: ${handle}`);
+
+      // Use the /handle/ endpoint specifically for handles
+      const url = `${API_BASE_URL}/shopify/products/handle/${handle}`;
+      console.log(`🔗 Full URL: ${url}`);
+
+      const response = await axios.get(url);
+      console.log(`📦 Product fetched successfully:`, response.data);
+
+      return response.data;
+    } catch (error) {
+      console.error(`❌ Error fetching product (${handle}):`, error);
+
+      if (error.response?.status === 404) {
+        // If handle fails, try as ID as fallback
+        if (!handle.includes("-")) {
+          console.log("Handle fetch failed, trying as ID...");
+          return await this.getProductById(handle);
+        }
+        throw new Error(`Product "${handle}" not found`);
+      } else if (error.response?.status >= 500) {
+        throw new Error("Server error - please try again later");
+      }
+
+      throw error;
+    }
+  },
+
+  // Search products
+  async searchProducts(searchTerm, limit = 10) {
+    try {
+      console.log(`🔍 Searching products for: ${searchTerm}`);
+
+      const params = new URLSearchParams({
+        q: searchTerm,
+        limit: limit.toString(),
+      });
+
+      const url = `${API_ENDPOINT}/shopify/products/search?${params.toString()}`;
+      const response = await axios.get(url);
+
+      console.log(`✅ Search returned ${response.data.length || 0} products`);
+      return response.data;
+    } catch (error) {
+      console.error(
+        "Error searching products:",
+        error.response?.data || error.message
+      );
+      throw error;
+    }
+  },
+
+  // Quick products fetch (cached on backend)
+  async getQuickProducts() {
+    try {
+      console.log("⚡ Fetching quick products (cached)");
+      const response = await axios.get(
+        `${API_ENDPOINT}/shopify/products/quick`
+      );
+      console.log(`✅ Fetched ${response.data.length || 0} quick products`);
+      return response.data;
+    } catch (error) {
+      console.error(
+        "Error fetching quick products:",
+        error.response?.data || error.message
+      );
+      // Fallback to regular products if quick endpoint fails
+      console.log("Falling back to regular products fetch");
+      return this.getProducts({ limit: 20 });
+    }
+  },
+
+  // Batch fetch products by IDs or handles
+  async batchFetchProducts(identifiers, type = "id") {
+    try {
+      console.log(
+        `📦 Batch fetching ${identifiers.length} products by ${type}`
+      );
+
+      const response = await axios.post(
+        `${API_ENDPOINT}/shopify/products/batch`,
+        {
+          identifiers,
+          type, // 'id' or 'handle'
+        }
+      );
+
+      console.log(`✅ Batch fetched ${response.data.length || 0} products`);
+      return response.data;
+    } catch (error) {
+      console.error(
+        "Error batch fetching products:",
+        error.response?.data || error.message
+      );
+      throw error;
+    }
+  },
+
+  // NEW: Fetch admin products for management
   async fetchAdminProducts() {
     try {
       console.log("🔧 Fetching admin products for management...");
 
-      // Use the admin products endpoint
       const response = await axios.get(
         `${API_ENDPOINT}/shopify/admin/products?limit=50&reverse=true`
       );
@@ -66,13 +238,14 @@ const shopifyService = {
       }
 
       if (response.data.success && response.data.products) {
-        // Transform the data to match component structure
         const transformedProducts = response.data.products.map((product) => ({
           id: product.id,
           title: product.title,
           handle: product.handle,
           description: product.description,
           availableForSale: product.availableForSale,
+          productType: product.productType,
+          tags: product.tags,
           price: product.priceRange?.minVariantPrice
             ? `$${parseFloat(product.priceRange.minVariantPrice.amount).toFixed(
                 2
@@ -83,7 +256,6 @@ const shopifyService = {
           image: product.images?.edges?.[0]?.node?.url || null,
           imageAlt: product.images?.edges?.[0]?.node?.altText || product.title,
           variants: product.variants?.edges?.map((edge) => edge.node) || [],
-          // Calculate total inventory from variants
           inventory:
             product.variants?.edges?.reduce((total, variant) => {
               return total + (variant.node.availableForSale ? 1 : 0);
@@ -101,7 +273,6 @@ const shopifyService = {
     } catch (error) {
       console.error("Error fetching admin products:", error);
 
-      // Provide more specific error messages
       if (error.response?.status === 404) {
         throw new Error("Admin products endpoint not found");
       } else if (error.response?.status >= 500) {
@@ -119,89 +290,25 @@ const shopifyService = {
     }
   },
 
-  // Fetch single product by handle
-    async getProduct(handle) {
-    console.log("Fetching product for handle:", handle);
-    try {
-      console.log(`🎯 Fetching product with handle: ${handle}`);
-      const url = `${API_BASE_URL}/shopify/products/${handle}`;
-      console.log(`🔗 Full URL: ${url}`);
+  // Helper to clean Shopify product ID
+  cleanProductId(id) {
+    if (!id) return null;
 
-      const response = await axios.get(url);
-      console.log(`📦 Raw Response Status:`, response.status);
-      console.log(`📦 Raw Response Data:`, response.data);
-      console.log(
-        `📦 Response Type:`,
-        Array.isArray(response.data) ? "Array" : "Object"
-      );
+    // Convert to string
+    id = String(id);
 
-      let productData = response.data;
-
-      // If we get an array (wrong endpoint or backend issue)
-      if (Array.isArray(productData)) {
-        console.error(
-          "❌ BACKEND ERROR: Received array instead of single product object"
-        );
-        console.error(
-          "❌ This means your backend /products/:handle route is wrong"
-        );
-        console.error("❌ Array content:", productData);
-
-        // Try to extract the product from array as fallback
-        if (productData.length > 0) {
-          const firstItem = productData[0];
-          // Check if it has a 'node' property (GraphQL edge structure)
-          if (firstItem.node) {
-            console.warn("🔄 Extracting product from GraphQL edge structure");
-            productData = firstItem.node;
-          } else {
-            console.warn("🔄 Using first item from array");
-            productData = firstItem;
-          }
-          console.log("🔄 Extracted product:", productData);
-        } else {
-          throw new Error("Empty array response from backend");
-        }
-      }
-
-      // Validate the product data structure
-      if (!productData || typeof productData !== "object") {
-        throw new Error("Invalid product data: not an object");
-      }
-
-      if (!productData.id || !productData.title) {
-        console.error("❌ Invalid product structure:", productData);
-        throw new Error(
-          "Invalid product data: missing required fields (id, title)"
-        );
-      }
-
-      console.log(`✅ Valid Product Data:`, {
-        id: productData.id,
-        title: productData.title,
-        handle: productData.handle,
-        hasImages: !!productData.images?.edges?.length,
-        hasVariants: !!productData.variants?.edges?.length,
-      });
-
-      return productData;
-    } catch (error) {
-      console.error(`❌ Error fetching product (${handle}):`, error);
-
-      if (error.response) {
-        console.error("❌ Response status:", error.response.status);
-        console.error("❌ Response data:", error.response.data);
-      }
-
-      // More specific error handling
-      if (error.response?.status === 404) {
-        throw new Error(`Product "${handle}" not found`);
-      } else if (error.response?.status >= 500) {
-        throw new Error("Server error - please try again later");
-      }
-
-      throw error;
+    // Extract numeric ID from gid://shopify/Product/123456
+    if (id.includes("gid://")) {
+      const parts = id.split("/");
+      return parts[parts.length - 1];
     }
+
+    // Remove any non-numeric characters if it's supposed to be a numeric ID
+    if (/^\d+$/.test(id)) {
+      return id;
+    }
+
+    return id;
   },
 
   // Create a cart (updated from checkout)
@@ -209,7 +316,6 @@ const shopifyService = {
     try {
       console.log("🛒 Creating cart with items:", lineItems);
 
-      // Validate line items format
       const validatedLineItems = lineItems.map((item) => {
         if (!item.variantId || !item.quantity) {
           throw new Error("Each line item must have variantId and quantity");
@@ -228,17 +334,14 @@ const shopifyService = {
 
       console.log("Cart Created:", response.data);
 
-      // The backend returns both checkout (for compatibility) and cart data
       const result = response.data;
 
-      // Ensure we have a checkout URL
       if (!result.checkout?.webUrl && !result.cart?.checkoutUrl) {
         throw new Error("No checkout URL returned from server");
       }
 
       return {
         ...result,
-        // Ensure webUrl is available for compatibility
         checkout: {
           ...result.checkout,
           webUrl: result.checkout?.webUrl || result.cart?.checkoutUrl,
@@ -250,7 +353,6 @@ const shopifyService = {
         error.response?.data || error.message
       );
 
-      // Handle specific Cart API errors
       if (error.response?.data?.userErrors) {
         const userErrors = error.response.data.userErrors;
         const errorMessages = userErrors.map((err) => err.message).join(", ");
@@ -261,7 +363,7 @@ const shopifyService = {
     }
   },
 
-  // Add items to an existing cart (updated)
+  // Add items to an existing cart
   async addToCheckout(cartId, lineItems) {
     try {
       console.log(`➕ Adding items to cart ${cartId}:`, lineItems);
@@ -274,7 +376,7 @@ const shopifyService = {
       const response = await axios.post(
         `${API_ENDPOINT}/shopify/checkout/add-items`,
         {
-          checkoutId: cartId, // Backend expects checkoutId for compatibility
+          checkoutId: cartId,
           lineItems: validatedLineItems,
         }
       );
@@ -297,7 +399,7 @@ const shopifyService = {
     }
   },
 
-  // Update cart items (new method for Cart API)
+  // Update cart items
   async updateCartItems(cartId, lines) {
     try {
       console.log(`📝 Updating cart items for ${cartId}:`, lines);
@@ -344,9 +446,9 @@ const shopifyService = {
     }
   },
 
-  // INGREDIENTS MANAGEMENT FUNCTIONS - Use API_BASE_URL directly (no /api prefix)
+  // ... rest of your existing methods (ingredients, reviews, etc.) remain the same ...
 
-  // Fetch all ingredients
+  // INGREDIENTS MANAGEMENT FUNCTIONS
   async getIngredients() {
     try {
       const url = `${API_BASE_URL}/getingredients`;
@@ -367,11 +469,8 @@ const shopifyService = {
     }
   },
 
-  // Get ingredients for a specific product
   async getProductIngredients(productId) {
     try {
-
-
       const url = `${API_BASE_URL}/shopify/admin/ingredients/getingredients`;
       console.log(
         `🥗 Fetching ingredients for product ${productId} from:`,
@@ -380,7 +479,6 @@ const shopifyService = {
       const response = await axios.get(url);
 
       if (response.data.success) {
-        // Filter ingredients for this specific product
         const ingredients = response.data.ingredients || [];
         const filtered = ingredients.filter(
           (ing) => String(ing.product_id) === String(productId)
@@ -401,7 +499,6 @@ const shopifyService = {
     }
   },
 
-  // Add a new ingredient
   async addIngredient(ingredientData) {
     try {
       const url = `${API_BASE_URL}/shopify/admin/ingredients/addingredient`;
@@ -423,7 +520,6 @@ const shopifyService = {
     }
   },
 
-  // Update an ingredient
   async updateIngredient(ingredientId, updateData) {
     try {
       const url = `${API_BASE_URL}/shopify/admin/ingredients/updateingredient/${encodeURIComponent(
@@ -447,7 +543,6 @@ const shopifyService = {
     }
   },
 
-  // Delete an ingredient
   async deleteIngredient(ingredientId) {
     try {
       const url = `${API_BASE_URL}/shopify/admin/ingredients/deleteingredient/${encodeURIComponent(
@@ -470,27 +565,13 @@ const shopifyService = {
     }
   },
 
-  // Generate unique ingredient ID
   generateIngredientId(productId) {
     const timestamp = Date.now();
     const randomStr = Math.random().toString(36).substring(2, 7).toUpperCase();
     return `ING_${productId}_${timestamp}_${randomStr}`;
   },
 
-  // Helper to clean Shopify product ID
-  cleanProductId(id) {
-    if (!id) return null;
-    // Extract numeric ID from gid://shopify/Product/123456
-    if (typeof id === "string" && id.includes("gid://")) {
-      const parts = id.split("/");
-      return parts[parts.length - 1];
-    }
-    return id;
-  },
-
-  // REVIEW MANAGEMENT FUNCTIONS - Use API_ENDPOINT
-
-  // Fetch reviews for a product
+  // REVIEW MANAGEMENT FUNCTIONS
   async getReviews(productId, page = 1, limit = 10, sort = "-createdAt") {
     try {
       console.log(`📝 Fetching reviews for product ${productId}`);
@@ -515,7 +596,6 @@ const shopifyService = {
         error.response?.data || error.message
       );
 
-      // Provide more helpful error messages
       if (
         error.code === "ECONNREFUSED" ||
         error.message.includes("Network Error")
@@ -529,12 +609,10 @@ const shopifyService = {
     }
   },
 
-  // Submit a new review
   async submitReview(productId, reviewData) {
     try {
       console.log(`✍️ Submitting review for product ${productId}:`, reviewData);
 
-      // Validate required fields
       if (
         !reviewData.name?.trim() ||
         !reviewData.comment?.trim() ||
@@ -567,7 +645,6 @@ const shopifyService = {
         error.response?.data || error.message
       );
 
-      // Handle validation errors
       if (error.response?.data?.error) {
         throw new Error(error.response.data.error);
       }
@@ -576,7 +653,6 @@ const shopifyService = {
     }
   },
 
-  // Mark a review as helpful
   async markReviewHelpful(productId, reviewId) {
     try {
       console.log(`👍 Marking review ${reviewId} as helpful`);
@@ -603,7 +679,6 @@ const shopifyService = {
     }
   },
 
-  // Report a review
   async reportReview(productId, reviewId, reason) {
     try {
       console.log(`🚨 Reporting review ${reviewId} for: ${reason}`);
@@ -650,7 +725,6 @@ const shopifyService = {
         "Error fetching product revenue:",
         error.response?.data || error.message
       );
-      // Return default values instead of throwing
       return {
         totalRevenue: 0,
         orderCount: 0,
@@ -683,7 +757,6 @@ const shopifyService = {
     } catch (error) {
       console.error("Error fetching product rating:", error);
 
-      // Return default values instead of throwing for UI consistency
       return {
         averageRating: 0,
         totalReviews: 0,
@@ -691,9 +764,6 @@ const shopifyService = {
     }
   },
 
-  // INGREDIENTS FUNCTIONS (Updated)
-
-  // Fetch ingredients for a specific product (simplified)
   async fetchProductIngredients(productId) {
     if (!productId) {
       console.log("No product ID provided for ingredients");
@@ -703,18 +773,17 @@ const shopifyService = {
     try {
       console.log("Fetching ingredients for product:", productId);
 
-
-      const response = await axios.get(`${API_ENDPOINT}/shopify/admin/ingredients/getingredients`);
+      const response = await axios.get(
+        `${API_ENDPOINT}/shopify/admin/ingredients/getingredients`
+      );
 
       if (!response.data.success || !response.data.ingredients) {
         console.log("No ingredients data received");
         return [];
       }
 
-      // Extract clean product ID from Shopify GID
       const cleanProductId = this.cleanProductId(productId);
 
-      // Filter ingredients for this specific product
       const productIngredients = response.data.ingredients.filter((ing) => {
         return String(ing.product_id) === String(cleanProductId);
       });
@@ -724,7 +793,6 @@ const shopifyService = {
       );
 
       if (productIngredients.length > 0) {
-        // Format ingredients for UI consumption
         return productIngredients.map((ing) => ({
           name: ing.ingredient_name,
           image: ing.ingredient_image || "/assets/placeholder.png",
@@ -739,7 +807,6 @@ const shopifyService = {
     }
   },
 
-  // Get review statistics for a product
   async getReviewStats(productId) {
     try {
       console.log(`📊 Fetching review stats for product ${productId}`);
@@ -766,36 +833,57 @@ const shopifyService = {
 };
 
 // Export individual functions
-export const getProducts = shopifyService.getProducts;
-export const getProduct = shopifyService.getProduct;
-export const createCheckout = shopifyService.createCheckout;
-export const addToCheckout = shopifyService.addToCheckout;
-export const updateCartItems = shopifyService.updateCartItems;
-export const testConnection = shopifyService.testConnection;
-
-// Export new admin products function
-export const fetchAdminProducts = shopifyService.fetchAdminProducts;
+export const getProducts = shopifyService.getProducts.bind(shopifyService);
+export const getProductsByCategory =
+  shopifyService.getProductsByCategory.bind(shopifyService);
+export const getProduct = shopifyService.getProduct.bind(shopifyService);
+export const getProductById =
+  shopifyService.getProductById.bind(shopifyService);
+export const searchProducts =
+  shopifyService.searchProducts.bind(shopifyService);
+export const getQuickProducts =
+  shopifyService.getQuickProducts.bind(shopifyService);
+export const batchFetchProducts =
+  shopifyService.batchFetchProducts.bind(shopifyService);
+export const createCheckout =
+  shopifyService.createCheckout.bind(shopifyService);
+export const addToCheckout = shopifyService.addToCheckout.bind(shopifyService);
+export const updateCartItems =
+  shopifyService.updateCartItems.bind(shopifyService);
+export const testConnection =
+  shopifyService.testConnection.bind(shopifyService);
+export const fetchAdminProducts =
+  shopifyService.fetchAdminProducts.bind(shopifyService);
+export const cleanProductId =
+  shopifyService.cleanProductId.bind(shopifyService);
 
 // Export ingredient functions
-export const getIngredients = shopifyService.getIngredients;
-export const getProductIngredients = shopifyService.getProductIngredients;
-export const addIngredient = shopifyService.addIngredient;
-export const updateIngredient = shopifyService.updateIngredient;
-export const deleteIngredient = shopifyService.deleteIngredient;
-export const generateIngredientId = shopifyService.generateIngredientId;
-export const cleanProductId = shopifyService.cleanProductId;
+export const getIngredients =
+  shopifyService.getIngredients.bind(shopifyService);
+export const getProductIngredients =
+  shopifyService.getProductIngredients.bind(shopifyService);
+export const addIngredient = shopifyService.addIngredient.bind(shopifyService);
+export const updateIngredient =
+  shopifyService.updateIngredient.bind(shopifyService);
+export const deleteIngredient =
+  shopifyService.deleteIngredient.bind(shopifyService);
+export const generateIngredientId =
+  shopifyService.generateIngredientId.bind(shopifyService);
 
 // Export review functions
-export const getReviews = shopifyService.getReviews;
-export const submitReview = shopifyService.submitReview;
-export const markReviewHelpful = shopifyService.markReviewHelpful;
-export const reportReview = shopifyService.reportReview;
-export const getReviewStats = shopifyService.getReviewStats;
-
-export const getProductRating = shopifyService.getProductRating;
-export const fetchProductIngredients = shopifyService.fetchProductIngredients;
-
-export const getProductRevenue = shopifyService.getProductRevenue;
+export const getReviews = shopifyService.getReviews.bind(shopifyService);
+export const submitReview = shopifyService.submitReview.bind(shopifyService);
+export const markReviewHelpful =
+  shopifyService.markReviewHelpful.bind(shopifyService);
+export const reportReview = shopifyService.reportReview.bind(shopifyService);
+export const getReviewStats =
+  shopifyService.getReviewStats.bind(shopifyService);
+export const getProductRating =
+  shopifyService.getProductRating.bind(shopifyService);
+export const fetchProductIngredients =
+  shopifyService.fetchProductIngredients.bind(shopifyService);
+export const getProductRevenue =
+  shopifyService.getProductRevenue.bind(shopifyService);
 
 // Default export
 export default shopifyService;

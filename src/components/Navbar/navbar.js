@@ -19,7 +19,7 @@ const Navbar = () => {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [activePath, setActivePath] = useState(window.location.pathname);
 
-  const { customer, logout, isAuthenticated, loading: authLoading } = useAuth();
+  const { customer, logout, isAuthenticated } = useAuth();
   const profileDropdownRef = useRef(null);
 
   const { getTotalItems, setIsCartOpen } = useCart();
@@ -47,10 +47,12 @@ const Navbar = () => {
         setProductLoading(true);
         setProductError(null);
         const allProducts = await shopifyService.getProducts();
-        const filteredProducts = allProducts.filter((edge) => {
-          const node = edge.node || edge;
-          return node.title.toLowerCase().includes(searchTerm.toLowerCase());
-        }).slice(0, 5);
+        const filteredProducts = allProducts
+          .filter((edge) => {
+            const node = edge.node || edge;
+            return node.title.toLowerCase().includes(searchTerm.toLowerCase());
+          })
+          .slice(0, 5);
         if (!ignore) setProducts(filteredProducts);
       } catch (err) {
         if (!ignore) setProductError(err.message || "Error fetching products");
@@ -59,7 +61,9 @@ const Navbar = () => {
       }
     };
     fetchProducts();
-    return () => { ignore = true; };
+    return () => {
+      ignore = true;
+    };
   }, [searchTerm]);
 
   const toggleMenu = () => setIsOpen((val) => !val);
@@ -115,7 +119,7 @@ const Navbar = () => {
     // gid format: "gid://shopify/Product/10145848099128"
     if (!gid) return null;
     const parts = gid.split("/");
-    return parts.length > 0 ? parts[parts.length -1] : null;
+    return parts.length > 0 ? parts[parts.length - 1] : null;
   };
 
   return (
@@ -133,18 +137,30 @@ const Navbar = () => {
             autoComplete="off"
           />
           {searchTerm && (
-            <div className="autocomplete-dropdown" style={{
-              position: "absolute", top: "110%", left: 0, width: "100%",
-              background: "white", boxShadow: "0 2px 8px #eee", zIndex: 100
-            }}>
+            <div
+              className="autocomplete-dropdown"
+              style={{
+                position: "absolute",
+                top: "110%",
+                left: 0,
+                width: "100%",
+                background: "white",
+                boxShadow: "0 2px 8px #eee",
+                zIndex: 100,
+              }}
+            >
               {productLoading && (
                 <div style={{ padding: "10px 12px" }}>Loading...</div>
               )}
               {productError && (
-                <div style={{ color:"red", padding: "10px 12px" }}>{productError}</div>
+                <div style={{ color: "red", padding: "10px 12px" }}>
+                  {productError}
+                </div>
               )}
               {!productLoading && products.length === 0 && !productError && (
-                <div className="not-found" style={{ padding: "10px 12px" }}>No products found</div>
+                <div className="not-found" style={{ padding: "10px 12px" }}>
+                  No products found
+                </div>
               )}
               {products.map((edge, idx) => {
                 const node = edge.node || edge;
@@ -158,7 +174,7 @@ const Navbar = () => {
                       alignItems: "center",
                       cursor: "pointer",
                       padding: "8px 10px",
-                      borderBottom: "1px solid #eee"
+                      borderBottom: "1px solid #eee",
                     }}
                     onClick={() => {
                       setSearchTerm("");
@@ -169,7 +185,9 @@ const Navbar = () => {
                     }}
                   >
                     <img
-                      src={node.images?.edges?.[0]?.node?.url || "/assets/logo.png"}
+                      src={
+                        node.images?.edges?.[0]?.node?.url || "/assets/logo.png"
+                      }
                       alt={node.title}
                       style={{
                         width: 28,
@@ -177,9 +195,11 @@ const Navbar = () => {
                         objectFit: "cover",
                         borderRadius: "6px",
                         marginRight: 10,
-                        background: "#fafafa"
+                        background: "#fafafa",
                       }}
-                      onError={(e) => (e.currentTarget.src = "/assets/logo.png")}
+                      onError={(e) =>
+                        (e.currentTarget.src = "/assets/logo.png")
+                      }
                     />
                     <span>{node.title}</span>
                   </div>
