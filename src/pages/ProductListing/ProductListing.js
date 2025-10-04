@@ -37,7 +37,7 @@ export default function Products() {
 
   const searchParams = new URLSearchParams(location.search);
   const category = searchParams.get("category");
-
+console.log("Category from URL:", category);
   // State
   const [product, setProduct] = useState(null);
   const [selectedVariant, setSelectedVariant] = useState(null);

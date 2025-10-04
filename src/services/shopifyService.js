@@ -1,8 +1,9 @@
 import axios from "axios";
 
-const API_BASE_URL = "https://elinofoods-be.onrender.com/api"; //"http://localhost:5000/api";
-
+const API_BASE_URL ="https://elinofoods-be.onrender.com/api" ; //"http://localhost:5000/api";
+//"https://elinofoods-be.onrender.com/api"
 const API_ENDPOINT = `${API_BASE_URL}`;
+
 
 // Add axios interceptor for better debugging
 axios.interceptors.request.use(
@@ -119,11 +120,11 @@ const shopifyService = {
   },
 
   // Fetch single product by handle
-  async getProduct(handle) {
+    async getProduct(handle) {
     console.log("Fetching product for handle:", handle);
     try {
       console.log(`🎯 Fetching product with handle: ${handle}`);
-      const url = `${API_ENDPOINT}/shopify/products/${handle}`;
+      const url = `${API_BASE_URL}/shopify/products/${handle}`;
       console.log(`🔗 Full URL: ${url}`);
 
       const response = await axios.get(url);
@@ -369,7 +370,9 @@ const shopifyService = {
   // Get ingredients for a specific product
   async getProductIngredients(productId) {
     try {
-      const url = `${API_BASE_URL}/getingredients`;
+
+
+      const url = `${API_BASE_URL}/shopify/admin/ingredients/getingredients`;
       console.log(
         `🥗 Fetching ingredients for product ${productId} from:`,
         url
@@ -401,7 +404,7 @@ const shopifyService = {
   // Add a new ingredient
   async addIngredient(ingredientData) {
     try {
-      const url = `${API_BASE_URL}/addingredient`;
+      const url = `${API_BASE_URL}/shopify/admin/ingredients/addingredient`;
       console.log("➕ Adding ingredient to:", url);
       console.log("➕ Payload:", ingredientData);
       const response = await axios.post(url, ingredientData);
@@ -423,7 +426,7 @@ const shopifyService = {
   // Update an ingredient
   async updateIngredient(ingredientId, updateData) {
     try {
-      const url = `${API_BASE_URL}/updateingredient/${encodeURIComponent(
+      const url = `${API_BASE_URL}/shopify/admin/ingredients/updateingredient/${encodeURIComponent(
         ingredientId
       )}`;
       console.log(`📝 Updating ingredient at:`, url);
@@ -447,7 +450,7 @@ const shopifyService = {
   // Delete an ingredient
   async deleteIngredient(ingredientId) {
     try {
-      const url = `${API_BASE_URL}/deleteingredient/${encodeURIComponent(
+      const url = `${API_BASE_URL}/shopify/admin/ingredients/deleteingredient/${encodeURIComponent(
         ingredientId
       )}`;
       console.log(`🗑️ Deleting ingredient at:`, url);
@@ -700,7 +703,8 @@ const shopifyService = {
     try {
       console.log("Fetching ingredients for product:", productId);
 
-      const response = await axios.get(`${API_BASE_URL}/getingredients`);
+
+      const response = await axios.get(`${API_ENDPOINT}/shopify/admin/ingredients/getingredients`);
 
       if (!response.data.success || !response.data.ingredients) {
         console.log("No ingredients data received");
